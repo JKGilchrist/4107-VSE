@@ -4,43 +4,83 @@ import os
 import pandas as pd
 import re
 
-#to remove
-from bs4 import BeautifulSoup
+def read_and_munge_file(path):
+    '''
+    Returns list of titles, descriptions from given file. Highly personalized, so not very re-usable.
+    '''
+    titles = []
+    descriptions = []
 
-#WIP
+    with open(path, 'r') as f: #open file
+
+        line = f.readline()
+
+        while line:
+            if "courseblocktitle noindent" in line:
+                line = line[45:-14] #remove excess html
+
+                if "Ã" in line:
+                    line = french_formatting(line)
+
+                titles.append(line)
+
+                line = f.readline()
+                if "courseblockdesc noindent" in line: #Not all courses have descriptions.
+                    line = f.readline()
+                    
+                    line = line.split("</p>")[0].strip()
+
+                    if "Ã" in line:
+                        line = french_formatting(line)
+                    
+                    if ("href" in line):
+                        line = remove_link(line)
+
+                    descriptions.append(line)
+                
+                else: #course doesn't have a description. Filler used instead.
+                    descriptions.append("NA")
+                
+                line = f.readline()
+                
+            else: #skip line
+                line = f.readline()
+
+    return titles, descriptions
+
 def french_formatting(str1):
-    #print("frecnh: ", str1)
-    if "Ã‰" in str1:
-        str1 = str1.replace("Ã‰", "É", -1)
-    if 'Ã¨' in str1:
-        str1 = str1.replace('Ã¨', 'è', -1)
-    if 'Ã©' in str1:
-        str1 = str1.replace('Ã©', 'é', -1)
-    if 'Ã' in str1:
-        str1 = str1.replace('Ã ', 'à', -1)
+    '''
+    Corrects strings for french accents
+    '''
     
-    x = False
-    x = re.sub("  +", " ", str1)
-    if x:
-        print(str1)
-        str1 = x
+    str1 = re.sub('Ã€', "À", str1)
+    str1 = re.sub('Ã¢', "â", str1)
+    str1 = re.sub(r"Ã\s", "à", str1)
+    
+    str1 = re.sub('Ã§', "ç", str1)
+
+    str1 = re.sub("Ã‰", "É", str1)
+    str1 = re.sub('Ã¨', "è", str1)
+    str1 = re.sub('Ã©', "é", str1)
+    str1 = re.sub('Ãª', "ê", str1)
+
+    str1 = re.sub('Ã®', "î", str1)
+    str1 = re.sub('Ã¯', "ï", str1)
+    
+    str1 = re.sub('Ã´', "ô", str1)
+
+    str1 = re.sub('Ã¹', "ù", str1)
+    str1 = re.sub('Ã»', "û", str1)
+    
     return str1
 
-
-def process_html(a_file):
-    
-    
-    with open(a_file, 'r') as f: #open file
-
-        soup = BeautifulSoup(f, 'html.parser')
-
-        titles = soup.find_all("p", "courseblocktitle noindent")
-
-        ps = soup.find_all("p", "courseblockdesc noindent")
-
-        print(len(titles))
-        print(len(ps))
-
+def remove_link(str1):
+    '''
+    Removes html hyperlink metadata left in strings, returning the plain text
+    '''
+    str2 = re.sub(r'<a href="/search/\?P=\w{3}%\d{6}" title="\w{3} \d{4}" class="bubblelink code" onclick="return showCourse\(this, \'\w{3} \d{4}\'\);">', "", str1)
+    str2 = re.sub("</a>", "", str2)
+    return str2
 
 if __name__ == "__main__": 
     
@@ -52,45 +92,9 @@ if __name__ == "__main__":
     descriptions = []
 
     for a_file in files: #In case it becomes a series of files later.
-        
-        with open(path + a_file, 'r') as f: #open file
+        titles, descriptions = read_and_munge_file(path + a_file)
 
-            line = f.readline()
+    df = pd.DataFrame(list(zip(titles, descriptions)), columns = ["title", "description"])
 
-            while line:
-                if line.__contains__("courseblocktitle noindent"):
-                    line = line[45:-14] #remove excess text
-
-                    if "Ã" in line:
-                        line = french_formatting(line)
-
-                    titles.append(line)
-                    line = f.readline()
-                    if line.__contains__("courseblockdesc noindent"):
-                        line = f.readline()
-                        
-                        line = line.split("</p>")[0].strip()
-                        if "Ã" in line:
-                            line = french_formatting(line)
-                        
-                        #still a WIP
-                        #if ("href" in line):
-                        #    print(line)
-                        #print(line, "\n\n")
-                        descriptions.append(line)
-                    
-                    else: #course doesn't have a description. Filler used instead.
-                        descriptions.append("NA")
-                    
-                    line = f.readline()
-                    
-                else: #skip line
-                    line = f.readline()
-
-    if False:
-            
-        for x, y in zip(titles, descriptions):
-            print (x)
-            print (y)
-            print("\n\n\n\n")
-
+    df.to_csv("corpus/corpus.csv", sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
+    
