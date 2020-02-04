@@ -82,6 +82,19 @@ def remove_link(str1):
     str2 = re.sub("</a>", "", str2)
     return str2
 
+def write_to_xml(path, titles, descriptions):
+    text = '<?xml version="1.0" encoding="UTF-8"?>\n'
+
+    for title, description in zip(titles, descriptions):
+        text = text + "<course>\n" + "\t<title>" + title + "</title>\n" + "\t<description>" + description + "</description>\n" + "</course>\n"
+    
+    with open(path, 'w') as f: #open file
+        f.write(text)
+
+
+
+
+
 if __name__ == "__main__": 
     
     path = "raw_files/"
@@ -98,3 +111,5 @@ if __name__ == "__main__":
 
     df.to_csv("corpus/corpus.csv", sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
     
+    write_to_xml("corpus/corpus.xml", titles, descriptions)
+
