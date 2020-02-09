@@ -82,20 +82,7 @@ def remove_link(str1):
     str2 = re.sub("</a>", "", str2)
     return str2
 
-def write_to_xml(path, titles, descriptions):
-    text = '<?xml version="1.0" encoding="UTF-8"?>\n'
-
-    for title, description in zip(titles, descriptions):
-        text = text + "<course>\n" + "\t<title>" + title + "</title>\n" + "\t<description>" + description + "</description>\n" + "</course>\n"
-    
-    with open(path, 'w') as f: #open file
-        f.write(text)
-
-
-
-
-
-if __name__ == "__main__": 
+def create_columns():
     
     path = "raw_files/"
     
@@ -105,11 +92,43 @@ if __name__ == "__main__":
     descriptions = []
 
     for a_file in files: #In case it becomes a series of files later.
+        
         titles, descriptions = read_and_munge_file(path + a_file)
-
-    df = pd.DataFrame(list(zip(titles, descriptions)), columns = ["title", "description"])
-
-    df.to_csv("corpus/corpus.csv", sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
     
-    write_to_xml("corpus/corpus.xml", titles, descriptions)
 
+    ids = list(range(0, len(titles)))
+    return ids, titles, descriptions
+
+
+
+def create_xml_corpus(path):
+    
+    ids, titles, descriptions = create_columns()
+
+    text = '<?xml version="1.0" encoding="UTF-8"?>\n'
+
+    for id, title, description in zip(ids, titles, descriptions):
+        text = text + "<course>\n"  + "\t<id>" + str(id) + "</id>\n"   + "\t<title>" + title + "</title>\n" + "\t<description>" + description + "</description>\n" + "</course>\n"
+    
+    with open(path, 'w') as f: #open file
+        f.write(text)
+
+def create_csv_corpus(name):
+
+    ids, titles, descriptions = create_columns()
+
+    df = pd.DataFrame(list(zip(ids, titles, descriptions)), columns = ["id", "title", "description"])
+
+    df.to_csv(name, sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
+    
+
+
+
+if __name__ == "__main__": 
+    
+
+    if not os.path.exists("corpus.csv") :
+        create_csv_corpus("corpus.csv")
+    
+    if not os.path.exists("corpus.xml"): #Whichever is easier.
+        create_xml_corpus("corpus.xml")
