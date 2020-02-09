@@ -19,8 +19,8 @@ def read_and_munge_file(path):
             if "courseblocktitle noindent" in line:
                 line = line[45:-14] #remove excess html
 
-                if "Ã" in line:
-                    line = french_formatting(line)
+                if "Ã" in line: #french, toss
+                    continue
 
                 titles.append(line)
 
@@ -29,9 +29,6 @@ def read_and_munge_file(path):
                     line = f.readline()
                     
                     line = line.split("</p>")[0].strip()
-
-                    if "Ã" in line:
-                        line = french_formatting(line)
                     
                     if ("href" in line):
                         line = remove_link(line)
@@ -48,31 +45,6 @@ def read_and_munge_file(path):
 
     return titles, descriptions
 
-def french_formatting(str1):
-    '''
-    Corrects strings for french accents
-    '''
-    
-    str1 = re.sub('Ã€', "À", str1)
-    str1 = re.sub('Ã¢', "â", str1)
-    str1 = re.sub(r"Ã\s", "à", str1)
-    
-    str1 = re.sub('Ã§', "ç", str1)
-
-    str1 = re.sub("Ã‰", "É", str1)
-    str1 = re.sub('Ã¨', "è", str1)
-    str1 = re.sub('Ã©', "é", str1)
-    str1 = re.sub('Ãª', "ê", str1)
-
-    str1 = re.sub('Ã®', "î", str1)
-    str1 = re.sub('Ã¯', "ï", str1)
-    
-    str1 = re.sub('Ã´', "ô", str1)
-
-    str1 = re.sub('Ã¹', "ù", str1)
-    str1 = re.sub('Ã»', "û", str1)
-    
-    return str1
 
 def remove_link(str1):
     '''
