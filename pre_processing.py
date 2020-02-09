@@ -1,8 +1,9 @@
 # Convert a collection of documents into a formatted corpus
 
 import os
+import sys
 import pandas as pd
-import re
+import re 
 
 def read_and_munge_file(path):
     '''
@@ -11,16 +12,33 @@ def read_and_munge_file(path):
     titles = []
     descriptions = []
 
-    with open(path, 'r') as f: #open file
+    with open(path, 'r', encoding="utf8") as f: #open file
 
         line = f.readline()
+        if line[:8] == "PSY 6042":
+            print(line)
 
         while line:
             if "courseblocktitle noindent" in line:
                 line = line[45:-14] #remove excess html
 
-                if "Ã" in line: #french, toss
+                if int(line[5]) >= 5: #french, toss
                     continue
+
+                #removes french parts of bilingual courses
+                if "/" in line:
+                    new_line = line.split("/")
+                    if len(new_line) == 2 and len(new_line[1]) < 10:
+                        new_line = new_line[0].split("(")[0] + "(" + new_line[1][1:]
+                    elif len(new_line) == 2:
+                        new_line = new_line[0][:9] + new_line[1]
+                    else:
+                        if line.count("(") == 1:
+                            new_line = new_line[0][:8] + new_line[1].split("(")[0] + "(" + new_line[2][1:]
+                        else:
+                            new_line = new_line[0][:8] + new_line[1][:-11] + "(" + new_line[2][1:]
+                    
+                    line = new_line
 
                 titles.append(line)
 
@@ -33,6 +51,11 @@ def read_and_munge_file(path):
                     if ("href" in line):
                         line = remove_link(line)
 
+                    if "/" in line and ("é" in line or "à" in line or "è" in line): #Handling bilingual courses
+                        index = line.find("/")
+                        line = line[index+2:]
+                        #print(line)
+                    
                     descriptions.append(line)
                 
                 else: #course doesn't have a description. Filler used instead.
@@ -82,7 +105,7 @@ def create_xml_corpus(path):
     for id, title, description in zip(ids, titles, descriptions):
         text = text + "<course>\n"  + "\t<id>" + str(id) + "</id>\n"   + "\t<title>" + title + "</title>\n" + "\t<description>" + description + "</description>\n" + "</course>\n"
     
-    with open(path, 'w') as f: #open file
+    with open(path, 'w', encoding="utf8") as f: #open file
         f.write(text)
 
 def create_csv_corpus(name):
@@ -92,13 +115,8 @@ def create_csv_corpus(name):
     df = pd.DataFrame(list(zip(ids, titles, descriptions)), columns = ["id", "title", "description"])
 
     df.to_csv(name, sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
-    
 
-
-
-if __name__ == "__main__": 
-    
-
+def set_up():
     if not os.path.exists("corpus.csv") :
         create_csv_corpus("corpus.csv")
     
