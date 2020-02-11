@@ -1,0 +1,23 @@
+name: 4107-VSE
+channels:
+  - defaults
+dependencies:
+  - ca-certificates=2020.1.1
+  - certifi=2019.11.28
+  - openssl=1.1.1d
+  - pip=20.0.2
+  - python=3.8.1
+  - setuptools=45.1.0
+  - sqlite=3.31.1
+  - vc=14.1
+  - vs2015_runtime=14.16.27012
+  - wheel=0.34.2
+  - wincertstore=0.2
+  - pip:
+    - nltk==3.4.5
+    - numpy==1.18.1
+    - pandas==1.0.1
+    - python-dateutil==2.8.1
+    - pytz==2019.3
+    - six==1.14.0
+
