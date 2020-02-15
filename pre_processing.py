@@ -1,3 +1,5 @@
+#Module 2
+
 # Convert a collection of documents into a formatted corpus
 
 import os
@@ -95,7 +97,6 @@ def create_columns():
     return ids, titles, descriptions
 
 
-
 def create_xml_corpus(path):
     
     ids, titles, descriptions = create_columns()
@@ -117,8 +118,18 @@ def create_csv_corpus(name):
     df.to_csv(name, sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
 
 def set_up():
-    if not os.path.exists("corpus.csv") :
-        create_csv_corpus("corpus.csv")
+    if not os.path.exists("save_files/corpus.csv"):
+        create_csv_corpus("save_files/corpus.csv")
     
-    if not os.path.exists("corpus.xml"): #Whichever is easier.
-        create_xml_corpus("corpus.xml")
+    if not os.path.exists("save_files/corpus.xml"): #Whichever is easier.
+        create_xml_corpus("save_files/corpus.xml")
+
+if __name__ == "__main__":
+    
+    try:
+        os.remove("save_files/corpus.csv")
+        os.remove("save_files/corpus.xml")
+    except:
+        pass
+
+    set_up()
