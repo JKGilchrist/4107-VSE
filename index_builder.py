@@ -77,7 +77,5 @@ def build_all():
     desc_sec.build_secondary_index()
     desc_sec.save("description_secondary_index")
 
-
-    
 if __name__ == "__main__":
     build_all()

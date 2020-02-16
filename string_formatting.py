@@ -1,5 +1,7 @@
 #Helper for module 3 and ... 9??
 
+import settings
+
 #modified from csi4106 notebook 5:
 import nltk
 #nltk.download('stopwords') #can be commented out after first run
@@ -21,15 +23,26 @@ def stemmer(tokens): #sometimes case-folds??
     return [PorterStemmer().stem(t) for t in tokens]
     ###end
 
-def fully_lower(tokens):
-
-
-    return [token.lower() for token in tokens]
-
+def lower(tokens):
+    good = []
+    for token in tokens:
+        if str.isalpha(token):
+            good.append(token.lower())
+        else:
+            good.append(token)
+    return good
 
 #main function
-def get_formatted_tokens(str1, normalize = 1, fully_normalize = 1, remove_units = 1, remove_stopwords = 1, fully_lower = 1, stem = 1):
-    
+def get_formatted_tokens(str1):
+
+    remove_units = settings.remove_units
+    fully_normalize = settings.fully_normalize
+    normalize = settings.normalize
+    remove_stopwords = settings.remove_stopwords
+    fully_lower = settings.fully_lower
+    stem = settings.stem
+
+
     if type(str1) == float:
         return []
     
@@ -40,25 +53,22 @@ def get_formatted_tokens(str1, normalize = 1, fully_normalize = 1, remove_units 
     if remove_units:
         str1 = re.sub(r" \(.+ unit.?\)", "", str1)
 
-    if fully_normalize:
-        #Except for C++ we want to keep that
+    if fully_normalize: #Except for C++ we want to keep that
         if "C++" in str1:
             str1 = re.sub(r"\W", " ", str1) #replace all non letters and numbers with white space
             str1 = re.sub(r"\sC\s", " C++ ", str1) #restore C++
-            
         else:
             str1 = re.sub(r"\W", " ", str1) #replace all non letters and numbers with white space
-        
     elif normalize:
         str1 = str1.replace("-", " ")     
         str1 = str1.replace(".", "")
-        
+    
     #str1 = str(str1).strip()
     tokens = str1.split()
     if remove_stopwords:
         tokens = rm_stopwords(tokens)
     if fully_lower:
-        tokens = fully_lower(tokens)
+        tokens = lower(tokens)
     if stem:
         tokens = stemmer(tokens)
         

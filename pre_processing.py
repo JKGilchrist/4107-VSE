@@ -17,14 +17,12 @@ def read_and_munge_file(path):
     with open(path, 'r', encoding="utf8") as f: 
 
         line = f.readline()
-        if line[:8] == "PSY 6042":
-            print(line)
 
         while line:
             if "courseblocktitle noindent" in line:
                 line = line[45:-14] #remove excess html
 
-                if int(line[5]) >= 5: #french, toss
+                if int(line[5]) >= 5 and int(line[5]) != 9: #french, toss
                     continue
 
                 #removes french parts of bilingual courses
@@ -70,7 +68,6 @@ def read_and_munge_file(path):
 
     return titles, descriptions
 
-
 def remove_link(str1):
     '''
     Removes html hyperlink metadata left in strings, returning the plain text
@@ -80,6 +77,9 @@ def remove_link(str1):
     return str2
 
 def create_columns():
+    '''
+    In anticipation of later expansion and more files, uses the directory to access all the raw files that should be converted into a corpus. 
+    '''
     
     path = "raw_files/"
     
@@ -96,21 +96,7 @@ def create_columns():
     ids = list(range(0, len(titles)))
     return ids, titles, descriptions
 
-
-def create_xml_corpus(path):
-    
-    ids, titles, descriptions = create_columns()
-
-    text = '<?xml version="1.0" encoding="UTF-8"?>\n'
-
-    for id, title, description in zip(ids, titles, descriptions):
-        text = text + "<course>\n"  + "\t<id>" + str(id) + "</id>\n"   + "\t<title>" + title + "</title>\n" + "\t<description>" + description + "</description>\n" + "</course>\n"
-    
-    with open(path, 'w', encoding="utf8") as f: 
-        f.write(text)
-
 def create_csv_corpus(name):
-
     ids, titles, descriptions = create_columns()
 
     df = pd.DataFrame(list(zip(ids, titles, descriptions)), columns = ["id", "title", "description"])
@@ -118,12 +104,8 @@ def create_csv_corpus(name):
     df.to_csv(name, sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
 
 def main():
-    if not os.path.exists("save_files/corpus.csv"):
-        create_csv_corpus("save_files/corpus.csv")
+    create_csv_corpus("save_files/corpus.csv")
     
-    if not os.path.exists("save_files/corpus.xml"): #Whichever is easier.
-        create_xml_corpus("save_files/corpus.xml")
 
 if __name__ == "__main__":
-
     main()

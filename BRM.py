@@ -96,8 +96,9 @@ class BRM:
 
 if __name__ == "__main__":
     test = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
-    print (test.run_model("commercial OR competition"))
+    print (test.run_model("4* OR competition"))
+
     print("\n\n\n")
-    #breakdown("(B OR C) AND_NOT (A OR C)")
+    print (test.run_model("competition OR computer"))
     #print("\n\n\n")
     #breakdown("((x AND (x OR y)) OR (c AND d))")
