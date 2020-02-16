@@ -12,8 +12,8 @@ def open_file():
 
 def save(set1, name):
     pickle.dump(set1, open("save_files/{name}.obj".format(name = name), "wb"  ) )
-    
-    
+
+
 if __name__ == "__main__": 
     df = open_file()
 

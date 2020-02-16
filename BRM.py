@@ -1,86 +1,96 @@
 
-import string_formatting
+from index_builder import get_bigrams
+from string_formatting import get_formatted_tokens
 
-def breakdown(string):
-    if "(" in string:
-        string = string.replace("(", " ( ")
-    if ")" in string:
-        string = string.replace(")", " ) ")
+import pickle
+
+class BRM:
+
+    def __init__ (self, primary_index_path, *secondary_index_path):
+        self.primary_index = pickle.load(open(primary_index_path, 'rb'))
+        if secondary_index_path:
+            self.secondary_index = pickle.load(open(secondary_index_path[0], 'rb'))
     
-    lst = string.split()
-    #print(lst)
-    print (grouper(lst))
+    def run_model(self, query):
+        if "(" in query:
+            query = query.replace("(", " ( ")
+        if ")" in query:
+            query = query.replace(")", " ) ")
+        
+        lst = query.split()
+        
+        return self.loop(lst) #inherently won't have duplicates
 
+    def lookup(self, string):
+        terms = []
 
-def lookup(string):
-    string = string_formatting.get_formatted_tokens(string)
-    #calls corpus access
-    print(string)
-    return string
-    
-def union(LHS, RHS):
-    return list( set(LHS) | set(RHS) )
-    
-def intersection(LHS, RHS):
-    return [i for i in LHS if i in  RHS]
-    
+        if "*" in string:
+            bigrams = get_bigrams(string)
+            for bigram in bigrams:
+                try: #just in case it isn't there
+                    terms += self.secondary_index[bigram]
+                except:
+                    continue
+        else:
+            terms = [string]
+        
+        ids = []
 
-def exception(LHS, RHS):
-    return [i for i in LHS if i not in  RHS]
-    
+        for term in terms:
+            formatted = get_formatted_tokens(term)[0]
+            try:
+                ids += self.primary_index[formatted]
+            except:
+                continue
+        return ids
+        
+    def loop(self, lst):
+        if len(lst) == 1:
+            return self.lookup(lst[0])
+            #get values
+        else:
+            excess_parentheses = False
 
-def grouper(lst):
-    print("lst:", lst)
-    if len(lst) == 1:
-        return lookup(lst[0])
-        #get values
-    else:
-        flip = False
+            for i in range(len(lst)):
+                if lst[i] == "AND" or lst[i] == "OR" or lst[i] == "AND_NOT":
+                    
+                    before_start = lst[:i].count("(")
+                    before_end = lst[:i].count(")")
+                    after_start = lst[i:].count("(")
+                    after_end = lst[i:].count(")")
 
-        for i in range(len(lst)):
-            if lst[i] == "AND" or lst[i] == "OR" or lst[i] == "AND_NOT":
-                
-                before_start = lst[:i].count("(")
-                before_end = lst[:i].count(")")
-                after_start = lst[i:].count("(")
-                after_end = lst[i:].count(")")
+                    if before_start == before_end and after_start == after_end: # found the middle
+                        LHS = []
+                        RHS =  []
 
-                if before_start == before_end and after_start == after_end: # found the middle
-                    LHS = []
-                    RHS =  []                    
-                    if i == 1: #either a single element by itself
-                        LHS = grouper(lst[:i])
-                    else: #or wrapped in ()
-                        LHS = grouper(lst[1:i- 1])
+                        if i == 1: #single element by itself
+                            LHS = self.loop(lst[:i])
+                        else: #something wrapped in ()
+                            LHS = self.loop(lst[1:i- 1])
+                            
+                        if i+2 == len(lst): #single element
+                            RHS = self.loop(lst[i+1:])
+                        else:
+                            RHS = self.loop(lst[i+2 : len(lst) - 1])
                         
-                    if i+2 == len(lst):
-                        RHS = grouper(lst[i+1:])
-                    else:
-                        RHS = grouper(lst[i+2 : len(lst) - 1])
-                    print("ON", LHS,lst[i],  RHS)
-                    
-                    if lst[i] == "OR":
-                        x = union(LHS, RHS)
-                        return x
-                    elif lst[i] == "AND":
-                        x = intersection(LHS, RHS)
-                        return x
-                    else:
-                        x = exception(LHS, RHS)
-                        return x
-                    
-                    #merge them
+                        if lst[i] == "OR":
+                            return list( set(LHS) | set(RHS) )
+                        elif lst[i] == "AND":
+                            return [i for i in LHS if i in  RHS]
+                        else: #AND_NOT
+                            return [i for i in LHS if i not in  RHS]
+                            
+                elif i == len(lst) - 1: #couldnt find middle, due to extra parentheses around entire query
+                    excess_parentheses = True
 
-            elif i == len(lst) - 1: #couldnt find middle, due to extra parentheses around entire query
-                flip = True
-
-        if flip:
-            return grouper(lst[1:len(lst) - 1])
+            if excess_parentheses: #remove them
+                return self.loop(lst[1:len(lst) - 1])
 
 
 
 if __name__ == "__main__":
-    breakdown("operating AND system")
+    test = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
+    print (test.run_model("commercial OR competition"))
     print("\n\n\n")
     #breakdown("(B OR C) AND_NOT (A OR C)")
     #print("\n\n\n")
