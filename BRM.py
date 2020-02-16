@@ -7,9 +7,13 @@ import pickle
 class BRM:
 
     def __init__ (self, primary_index_path, *secondary_index_path):
-        self.primary_index = pickle.load(open(primary_index_path, 'rb'))
+        
+        with open(primary_index_path, 'rb') as f: #open file
+            self.primary_index = pickle.load(f)
+
         if secondary_index_path:
-            self.secondary_index = pickle.load(open(secondary_index_path[0], 'rb'))
+            with open(secondary_index_path[0], 'rb') as f:
+                self.secondary_index = pickle.load(f)
     
     def run_model(self, query):
         if "(" in query:

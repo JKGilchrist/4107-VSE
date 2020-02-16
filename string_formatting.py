@@ -21,10 +21,12 @@ def stemmer(tokens): #sometimes case-folds??
     return [PorterStemmer().stem(t) for t in tokens]
     ###end
 
-#TODO add fully_lower
+def fully_lower(tokens):
+    return [token.lower() for token in tokens]
+
 
 #main function
-def get_formatted_tokens(str1, normalize = 1, fully_normalize = 1, remove_units = 1, remove_stopwords = 1, stem = 1):
+def get_formatted_tokens(str1, normalize = 1, fully_normalize = 1, remove_units = 1, remove_stopwords = 1, fully_lower = 1, stem = 1):
     
     if type(str1) == float:
         return []
@@ -53,6 +55,8 @@ def get_formatted_tokens(str1, normalize = 1, fully_normalize = 1, remove_units 
     tokens = str1.split()
     if remove_stopwords:
         tokens = rm_stopwords(tokens)
+    if fully_lower:
+        tokens = fully_lower(tokens)
     if stem:
         tokens = stemmer(tokens)
         

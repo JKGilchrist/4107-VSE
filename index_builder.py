@@ -21,7 +21,9 @@ class index:
 
         self.index = {} # a set of sets
 
-        self.dic_list = pickle.load(open(dic_path, 'rb'))
+        with open(dic_path, 'rb') as f:
+            self.dic_list = pickle.load(f)
+        
         
     def build_primary_index(self, df, name):
         
@@ -44,8 +46,9 @@ class index:
                     self.index[bigram] = set(term)
 
     def save(self, name):
-        pickle.dump(self.index, open("save_files/{}.obj".format(name), "wb"  ) )
-    
+        with open("save_files/{}.obj".format(name), "wb"  ) as f:
+            pickle.dump(self.index, f )
+        
 
 
     

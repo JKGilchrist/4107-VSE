@@ -14,7 +14,7 @@ def read_and_munge_file(path):
     titles = []
     descriptions = []
 
-    with open(path, 'r', encoding="utf8") as f: #open file
+    with open(path, 'r', encoding="utf8") as f: 
 
         line = f.readline()
         if line[:8] == "PSY 6042":
@@ -106,7 +106,7 @@ def create_xml_corpus(path):
     for id, title, description in zip(ids, titles, descriptions):
         text = text + "<course>\n"  + "\t<id>" + str(id) + "</id>\n"   + "\t<title>" + title + "</title>\n" + "\t<description>" + description + "</description>\n" + "</course>\n"
     
-    with open(path, 'w', encoding="utf8") as f: #open file
+    with open(path, 'w', encoding="utf8") as f: 
         f.write(text)
 
 def create_csv_corpus(name):
