@@ -1,0 +1,52 @@
+import pandas as pd
+from scipy.spatial.distance import cosine
+import numpy as np
+
+def vsm(collection, query, title, desc):
+    if collection == "UofO":
+        # create query df
+        values = []
+        query_no_duplicates = []
+        for i in range(len(query)):
+            if query[i] not in query_no_duplicates:
+                query_no_duplicates.append(query[i])
+                values.append(0)
+            values[query_no_duplicates.index(query[i])] = values[query_no_duplicates.index(query[i])] + 1
+        query_df = pd.DataFrame([values], columns=query_no_duplicates)
+
+        # create title df
+        index = []
+        values = []
+        for k, v in title.items():
+            if k in query_no_duplicates:
+                for i in range(len(v)):
+                    if v[i][0] not in index:
+                        index.append(v[i][0])
+                        values.append([0] * len(query_no_duplicates))
+                    values[index.index(v[i][0])][query_no_duplicates.index(k)] = v[i][1]
+        title_df = pd.DataFrame(values, index=index, columns=query_no_duplicates)
+
+        # create desc df
+        index = []
+        values = []
+        for k, v in desc.items():
+            if k in query_no_duplicates:
+                for i in range(len(v)):
+                    if v[i][0] not in index:
+                        index.append(v[i][0])
+                        values.append([0] * len(query_no_duplicates))
+                    values[index.index(v[i][0])][query_no_duplicates.index(k)] = v[i][1]
+        desc_df = pd.DataFrame(values, index=index, columns=query_no_duplicates)
+
+        tf_idf = ((2/3) * title_df).append((1/3) * desc_df)
+        tf_idf = tf_idf.groupby(tf_idf.index).sum()
+        tf_idf['cosine'] = tf_idf.apply(lambda row: np.dot(row, query_df.iloc[0]), axis=1)
+        tf_idf = tf_idf.nlargest(10, 'cosine')
+        return tf_idf[['cosine']]
+
+
+if __name__ == "__main__":
+    desc = pd.read_pickle("save_files/description_index_with_weight.obj")
+    title = pd.read_pickle("save_files/title_index_with_weight.obj")
+    query = ['detail', 'chi', '5101']
+    print(vsm("UofO", query, title, desc))
