@@ -117,7 +117,7 @@ def create_csv_corpus(name):
 
     df.to_csv(name, sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
 
-def set_up():
+def main():
     if not os.path.exists("save_files/corpus.csv"):
         create_csv_corpus("save_files/corpus.csv")
     
@@ -125,11 +125,5 @@ def set_up():
         create_xml_corpus("save_files/corpus.xml")
 
 if __name__ == "__main__":
-    
-    try:
-        os.remove("save_files/corpus.csv")
-        os.remove("save_files/corpus.xml")
-    except:
-        pass
 
-    set_up()
+    main()

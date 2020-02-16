@@ -6,13 +6,22 @@ import pickle
 import string_formatting
 
 def get_bigrams(string):
-    lst = ["$" + string[0], string[len(string) - 1] + "$"]
+    
+    lst = []
 
     i = 0
     while i < len(string) - 1:
+
+        if i == 0 and string[i] != "*":
+            lst.append("$" + string[0])
+
         if string[i] != "*" and string[i+1] != "*":
             lst.append(string[i] + string[i+1])
         i += 1
+
+        if i == len(string) - 1 and string[i] != "*":
+            lst.append(string[len(string) - 1] + "$")
+
     return lst
 
 class index:
@@ -23,7 +32,6 @@ class index:
 
         with open(dic_path, 'rb') as f:
             self.dic_list = pickle.load(f)
-        
         
     def build_primary_index(self, df, name):
         
@@ -48,11 +56,8 @@ class index:
     def save(self, name):
         with open("save_files/{}.obj".format(name), "wb"  ) as f:
             pickle.dump(self.index, f )
-        
 
-
-    
-if __name__ == "__main__":
+def build_all():
 
     df = pd.read_csv("save_files/corpus.csv", sep = "|")
 
@@ -71,3 +76,8 @@ if __name__ == "__main__":
     desc_sec = index("save_files/description_dic.obj")
     desc_sec.build_secondary_index()
     desc_sec.save("description_secondary_index")
+
+
+    
+if __name__ == "__main__":
+    build_all()

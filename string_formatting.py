@@ -22,6 +22,8 @@ def stemmer(tokens): #sometimes case-folds??
     ###end
 
 def fully_lower(tokens):
+
+
     return [token.lower() for token in tokens]
 
 
