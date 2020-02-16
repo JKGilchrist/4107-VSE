@@ -1,0 +1,97 @@
+
+from index_builder import get_bigrams
+from string_formatting import get_formatted_tokens
+
+import pickle
+
+class BRM:
+
+    def __init__ (self, primary_index_path, *secondary_index_path):
+        self.primary_index = pickle.load(open(primary_index_path, 'rb'))
+        if secondary_index_path:
+            self.secondary_index = pickle.load(open(secondary_index_path[0], 'rb'))
+    
+    def run_model(self, query):
+        if "(" in query:
+            query = query.replace("(", " ( ")
+        if ")" in query:
+            query = query.replace(")", " ) ")
+        
+        lst = query.split()
+        
+        return self.loop(lst) #inherently won't have duplicates
+
+    def lookup(self, string):
+        terms = []
+
+        if "*" in string:
+            bigrams = get_bigrams(string)
+            for bigram in bigrams:
+                try: #just in case it isn't there
+                    terms += self.secondary_index[bigram]
+                except:
+                    continue
+        else:
+            terms = [string]
+        
+        ids = []
+
+        for term in terms:
+            formatted = get_formatted_tokens(term)[0]
+            try:
+                ids += self.primary_index[formatted]
+            except:
+                continue
+        return ids
+        
+    def loop(self, lst):
+        if len(lst) == 1:
+            return self.lookup(lst[0])
+            #get values
+        else:
+            excess_parentheses = False
+
+            for i in range(len(lst)):
+                if lst[i] == "AND" or lst[i] == "OR" or lst[i] == "AND_NOT":
+                    
+                    before_start = lst[:i].count("(")
+                    before_end = lst[:i].count(")")
+                    after_start = lst[i:].count("(")
+                    after_end = lst[i:].count(")")
+
+                    if before_start == before_end and after_start == after_end: # found the middle
+                        LHS = []
+                        RHS =  []
+
+                        if i == 1: #single element by itself
+                            LHS = self.loop(lst[:i])
+                        else: #something wrapped in ()
+                            LHS = self.loop(lst[1:i- 1])
+                            
+                        if i+2 == len(lst): #single element
+                            RHS = self.loop(lst[i+1:])
+                        else:
+                            RHS = self.loop(lst[i+2 : len(lst) - 1])
+                        
+                        if lst[i] == "OR":
+                            return list( set(LHS) | set(RHS) )
+                        elif lst[i] == "AND":
+                            return [i for i in LHS if i in  RHS]
+                        else: #AND_NOT
+                            return [i for i in LHS if i not in  RHS]
+                            
+                elif i == len(lst) - 1: #couldnt find middle, due to extra parentheses around entire query
+                    excess_parentheses = True
+
+            if excess_parentheses: #remove them
+                return self.loop(lst[1:len(lst) - 1])
+
+
+
+if __name__ == "__main__":
+    test = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
+    print (test.run_model("commercial OR competition"))
+    print("\n\n\n")
+    #breakdown("(B OR C) AND_NOT (A OR C)")
+    #print("\n\n\n")
+    #breakdown("((x AND (x OR y)) OR (c AND d))")
