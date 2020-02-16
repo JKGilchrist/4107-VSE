@@ -1,3 +1,5 @@
+#Modules
+
 
 from index_builder import get_bigrams
 from string_formatting import get_formatted_tokens
@@ -7,9 +9,13 @@ import pickle
 class BRM:
 
     def __init__ (self, primary_index_path, *secondary_index_path):
-        self.primary_index = pickle.load(open(primary_index_path, 'rb'))
+        
+        with open(primary_index_path, 'rb') as f: #open file
+            self.primary_index = pickle.load(f)
+
         if secondary_index_path:
-            self.secondary_index = pickle.load(open(secondary_index_path[0], 'rb'))
+            with open(secondary_index_path[0], 'rb') as f:
+                self.secondary_index = pickle.load(f)
     
     def run_model(self, query):
         if "(" in query:
@@ -90,8 +96,9 @@ class BRM:
 
 if __name__ == "__main__":
     test = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
-    print (test.run_model("commercial OR competition"))
+    print (test.run_model("4* OR competition"))
+
     print("\n\n\n")
-    #breakdown("(B OR C) AND_NOT (A OR C)")
+    print (test.run_model("competition OR computer"))
     #print("\n\n\n")
     #breakdown("((x AND (x OR y)) OR (c AND d))")

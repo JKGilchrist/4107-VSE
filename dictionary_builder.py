@@ -11,32 +11,29 @@ def open_file():
     return df
 
 def save(set1, name):
-    pickle.dump(set1, open("save_files/{name}.obj".format(name = name), "wb"  ) )
+    with open("save_files/{name}.obj".format(name = name), "wb"  ) as f:
+        pickle.dump(set1, f )
+
+#TODO should take args for formatting
+def build_dic(field, save_name):
+    df = open_file()
+
+    lst = []
+    for x in df[field]:
+        lst.append(x)
+
+    dic = set()
+    for elem in lst:
+        tokens = string_formatting.get_formatted_tokens(elem)
+        dic.update(tokens)
+    
+    save(dic, save_name)
+
+def main():
+    build_dic("title", "title_dic")
+    build_dic("description", "description_dic")
 
 
 if __name__ == "__main__": 
-    df = open_file()
 
-    titles = []
-    for x in df["title"]:
-        titles.append(x)
-
-    title_dic = set()
-    for title in titles:
-        tokens = string_formatting.get_formatted_tokens(title)
-        title_dic.update(tokens)
-    
-    save(title_dic, "title_dic")
-
-    descriptions = []
-    for x in df["description"]:
-        descriptions.append(x)
-
-    description_dic = set()
-    for description in descriptions:
-        tokens = string_formatting.get_formatted_tokens(description)
-        description_dic.update(tokens)
-
-    save(description_dic, "description_dic")
-
-
+    main()
