@@ -16,7 +16,6 @@ def spelling_correction(query, corpus):
                 return words
     return []
 
-
 def controller(query, model, corpus):
     #boolean
     ids = []
@@ -31,3 +30,15 @@ def controller(query, model, corpus):
             ids2.remove(x)
         ids = ids3 + ids2 + ids1
         return ids
+    #VSM
+    else:
+        print("TODO")
+        ids = []
+    
+    df = pd.read_csv("save_files/corpus.csv", sep = "|")
+    return df.loc[ ids , ["title", "description"]]
+
+
+if __name__ == "__main__":
+    x = controller("computer AND systems", 1, 1)
+    print(x.head())
