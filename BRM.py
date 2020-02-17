@@ -50,7 +50,6 @@ class BRM:
         #ID retrievals
         ids = []
         for term in terms:
-            
             formatted = get_formatted_tokens(term)[0]
             try:
                 ids += self.primary_index[formatted]
@@ -71,7 +70,7 @@ class BRM:
             excess_parentheses = False
 
             for i in range(len(lst)):
-                if lst[i].lower() == "and" or lst[i].lower() == "or" or lst[i].lower() == "and_not":
+                if lst[i] == "AND" or lst[i] == "OR" or lst[i] == "AND_NOT":
                     
                     before_start = lst[:i].count("(")
                     before_end = lst[:i].count(")")
@@ -92,10 +91,9 @@ class BRM:
                         else:
                             RHS = self.loop(lst[i+2 : len(lst) - 1])
                         
-                        print(lst[i])
-                        if lst[i].lower() == "or":
+                        if lst[i] == "OR":
                             return list( set(LHS) | set(RHS) )
-                        elif lst[i].lower() == "and":
+                        elif lst[i] == "AND":
                             return [i for i in LHS if i in  RHS]
                         else: #AND_NOT
                             return [i for i in LHS if i not in  RHS]
