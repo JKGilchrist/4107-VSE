@@ -6,6 +6,9 @@ from string_formatting import get_formatted_tokens
 import pickle
 
 class BRM:
+    '''
+    The Boolean Retrieval Model, after initializing, just give run_model a query and it will compute and return a list of relevant, unique ids
+    '''
 
     def __init__ (self, primary_index_path, *secondary_index_path):
         '''
@@ -46,12 +49,11 @@ class BRM:
                     continue
         else:
             terms = [string]
-        
         #ID retrievals
         ids = []
         for term in terms:
-            formatted = get_formatted_tokens(term)[0]
             try:
+                formatted = get_formatted_tokens(term)[0]
                 ids += self.primary_index[formatted]
             except:
                 continue
@@ -104,11 +106,10 @@ class BRM:
             if excess_parentheses: #remove them, recall function
                 return self.loop(lst[1:len(lst) - 1])
 
-if __name__ == "__main__":
+
+def test_BRM():
     test = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
     print (test.run_model("4* OR competition"))
 
-    print("\n\n\n")
+    print("\n\n")
     print (test.run_model("competition OR computer"))
-    #print("\n\n\n")
-    #breakdown("((x AND (x OR y)) OR (c AND d))")

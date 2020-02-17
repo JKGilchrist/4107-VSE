@@ -8,6 +8,9 @@ import string_formatting
 from wildcard_handler import get_bigrams
 
 class index:
+    '''
+    Builds all the non-weighted indices
+    '''
 
     def __init__(self, dic_path):
         '''
@@ -51,7 +54,7 @@ class index:
         with open("save_files/{}.obj".format(name), "wb"  ) as f:
             pickle.dump(self.index, f )
 
-def build_all():
+def main():
     '''
     The main function, performing all the set-up required
     '''
@@ -73,5 +76,3 @@ def build_all():
     desc_sec.build_secondary_index()
     desc_sec.save("description_secondary_index")
 
-if __name__ == "__main__":
-    build_all()
