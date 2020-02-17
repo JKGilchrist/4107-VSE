@@ -109,7 +109,12 @@ class BRM:
 
 def test_BRM():
     test = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
-    print (test.run_model("4* OR competition"))
+    print (test.run_model("competition"))
 
     print("\n\n")
     print (test.run_model("competition OR computer"))
+    print("\n\n")
+    print (test.run_model("operating AND (system OR platform)"))
+
+if __name__ == "__main__":
+    test_BRM()

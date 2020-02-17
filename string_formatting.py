@@ -62,7 +62,7 @@ def get_formatted_tokens(string):
     string = string.replace("é", "e")
     string = string.replace("ï", "i")
 
-    if remove_units:
+    if remove_units: #very useless for searching on
         string = re.sub(r" \(.+ unit.?\)", "", string)
 
     if fully_normalize: #Except for C++ we want to keep that

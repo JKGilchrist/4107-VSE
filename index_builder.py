@@ -62,6 +62,7 @@ def main():
 
     title_index = index("save_files/title_dic.obj")
     title_index.build_primary_index(df, "title")
+    print(title_index.index)
     title_index.save("title_index")
 
     description_index =  index("save_files/description_dic.obj")
@@ -76,3 +77,5 @@ def main():
     desc_sec.build_secondary_index()
     desc_sec.save("description_secondary_index")
 
+if __name__ == "__main__":
+    main()
