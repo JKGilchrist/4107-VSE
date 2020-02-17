@@ -24,6 +24,7 @@ def controller(query, model, corpus):
         title_brm = BRM("save_files/title_index.obj", "save_files/title_secondary_index.obj")
         ids1 = desc_brm.run_model(query)
         ids2 = title_brm.run_model(query)
+
         ids3 = [t for t in ids2 if t in ids1]  # in both
         for x in ids3:
             ids1.remove(x)
@@ -42,3 +43,4 @@ def controller(query, model, corpus):
 if __name__ == "__main__":
     x = controller("computer AND systems", 1, 1)
     print(x.head())
+
