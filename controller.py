@@ -1,22 +1,33 @@
 import pandas as pd
 from spelling_correction import weighted_edit_distance
-import BRM
+from BRM import BRM
 
 def spelling_correction(query, corpus):
     if corpus == 1:
-        df = pd.read_pickle("save_files/weighted_ed_df.pkl")
         for i in range(len(query)):
+            df = pd.read_csv("save_files/word_lists/" + query[i][0] + "word.csv", quoting=3, error_bad_lines=False)
+            df.columns = ['word']
+            df = df.drop_duplicates()
             df['ed'] = df.apply(lambda x: weighted_edit_distance(query[i], x['word']), axis=1)
-            if df.loc[0, 'ed'] != 0:
-                df = df.nsmallest(5, 'ed')
-                print(df)
-                query[i] = df.loc[0, 'word']
-        print(query)
+            df = df.nsmallest(3, 'ed')
+            if df.ed.iloc[0] != 0:
+                words = df['word'].to_list()
+                print(words)
+                return words
+    return []
 
 
 def controller(query, model, corpus):
     #boolean
+    ids = []
     if model == 1:
-        brm = BRM.BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
-        brm.run_model(query)
-        print(brm.run_model(query))
+        desc_brm = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
+        title_brm = BRM("save_files/title_index.obj", "save_files/title_secondary_index.obj")
+        ids1 = desc_brm.run_model(query)
+        ids2 = title_brm.run_model(query)
+        ids3 = [t for t in ids2 if t in ids1]  # in both
+        for x in ids3:
+            ids1.remove(x)
+            ids2.remove(x)
+        ids = ids3 + ids2 + ids1
+        return ids
