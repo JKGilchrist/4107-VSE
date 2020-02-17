@@ -1,3 +1,4 @@
+#Settings for how tokenization is performed, for the dictionary, index, and for query terms
 normalize = 1
 fully_normalize = 1 
 remove_units = 1

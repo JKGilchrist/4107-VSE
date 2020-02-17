@@ -1,10 +1,12 @@
-#Helper for module 3 and ... 9??
+#Helper function(s)
+#The main function for external files is get_formatted_tokens, the rest just help that one perform
+#It uses settings.py to indicate whether various modifications should occur
 
 import settings
 
 #modified from csi4106 notebook 5:
 import nltk
-#nltk.download('stopwords') #can be commented out after first run
+nltk.download('stopwords') #can be commented out after first run
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 #end
@@ -12,18 +14,27 @@ from nltk.stem.porter import PorterStemmer
 import re
 
 def rm_stopwords(tokens):
+    '''
+    Returns a list of the elements from the given list that aren't an english stopword
+    '''
     good_tokens = []
     for token in tokens:
         if not (token in stopwords.words('english')):
             good_tokens.append(token)
     return good_tokens
 
-def stemmer(tokens): #sometimes case-folds??
+def stemmer(tokens): #sometimes case-folds
+    '''
+    Returns a list of stemmed elements based off the given list
+    '''
     ### modified from csi4106 notebook 5 
     return [PorterStemmer().stem(t) for t in tokens]
     ###end
 
 def lower(tokens):
+    '''
+    Returns a list of strings without any capital letters
+    '''
     good = []
     for token in tokens:
         if str.isalpha(token):
@@ -33,8 +44,10 @@ def lower(tokens):
     return good
 
 #main function
-def get_formatted_tokens(str1):
-
+def get_formatted_tokens(string):
+    '''
+    Returns a list of tokens, formatted based on the settings in settings.py, of the given string
+    '''
     remove_units = settings.remove_units
     fully_normalize = settings.fully_normalize
     normalize = settings.normalize
@@ -42,29 +55,27 @@ def get_formatted_tokens(str1):
     fully_lower = settings.fully_lower
     stem = settings.stem
 
-
-    if type(str1) == float:
+    if type(string) == float:
         return []
     
-    #remove accents - only changes words: québec, bézout, naïve
-    str1 = str1.replace("é", "e")
-    str1 = str1.replace("ï", "i")
+    #remove accents - only changes words: québec, bézout, naïve. It adds unnecessary complexity. The stemmer performs the same in either case
+    string = string.replace("é", "e")
+    string = string.replace("ï", "i")
 
     if remove_units:
-        str1 = re.sub(r" \(.+ unit.?\)", "", str1)
+        string = re.sub(r" \(.+ unit.?\)", "", string)
 
     if fully_normalize: #Except for C++ we want to keep that
-        if "C++" in str1:
-            str1 = re.sub(r"\W", " ", str1) #replace all non letters and numbers with white space
-            str1 = re.sub(r"\sC\s", " C++ ", str1) #restore C++
+        if "C++" in string:
+            string = re.sub(r"\W", " ", string) #replace all non letters and numbers with white space
+            string = re.sub(r"\sC\s", " C++ ", string) #restore C++
         else:
-            str1 = re.sub(r"\W", " ", str1) #replace all non letters and numbers with white space
+            string = re.sub(r"\W", " ", string) #replace all non letters and numbers with white space
     elif normalize:
-        str1 = str1.replace("-", " ")     
-        str1 = str1.replace(".", "")
+        string = string.replace("-", " ")     
+        string = string.replace(".", "")
     
-    #str1 = str(str1).strip()
-    tokens = str1.split()
+    tokens = string.split()
     if remove_stopwords:
         tokens = rm_stopwords(tokens)
     if fully_lower:

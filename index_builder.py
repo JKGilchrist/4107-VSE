@@ -5,46 +5,37 @@ import pickle
 
 import string_formatting
 
-def get_bigrams(string):
-    
-    lst = []
-
-    i = 0
-    while i < len(string) - 1:
-
-        if i == 0 and string[i] != "*":
-            lst.append("$" + string[0])
-
-        if string[i] != "*" and string[i+1] != "*":
-            lst.append(string[i] + string[i+1])
-        i += 1
-
-        if i == len(string) - 1 and string[i] != "*":
-            lst.append(string[len(string) - 1] + "$")
-
-    return lst
+from index_builder import get_bigrams
 
 class index:
 
     def __init__(self, dic_path):
-
-        self.index = {} # a set of sets
+        '''
+        Sets up the index
+        '''
+        self.index = {} # a dict of sets
 
         with open(dic_path, 'rb') as f:
-            self.dic_list = pickle.load(f)
+            self.dic_list = pickle.load(f) #set of tokenized terms
         
     def build_primary_index(self, df, name):
+        '''
+        Generates a primary index from the given dataframe and column name
+        '''
         
         for x in self.dic_list:
-            self.index[x] = set()
+            self.index[x] = set() #generates the dict entry and its empty set
 
         for _, row in df.iterrows():
             tokens = string_formatting.get_formatted_tokens(row[name])
             
             for token in tokens:
-                self.index[str(token)].add((row["id"]))
+                self.index[str(token)].add((row["id"])) #adds to dict sets
 
     def build_secondary_index(self):
+        '''
+        Generates a secondary index, mapping a bigram to a set of words within the dictionary that contain it.
+        '''
         for term in self.dic_list:
             bigrams = get_bigrams(term)
             for bigram in bigrams:
@@ -54,11 +45,16 @@ class index:
                     self.index[bigram] = set(term)
 
     def save(self, name):
+        '''
+        Saves the index, with the file name being the given name
+        '''
         with open("save_files/{}.obj".format(name), "wb"  ) as f:
             pickle.dump(self.index, f )
 
 def build_all():
-
+    '''
+    The main function, performing all the set-up required
+    '''
     df = pd.read_csv("save_files/corpus.csv", sep = "|")
 
     title_index = index("save_files/title_dic.obj")
@@ -76,6 +72,3 @@ def build_all():
     desc_sec = index("save_files/description_dic.obj")
     desc_sec.build_secondary_index()
     desc_sec.save("description_secondary_index")
-
-if __name__ == "__main__":
-    build_all()

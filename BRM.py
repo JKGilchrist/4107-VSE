@@ -1,7 +1,6 @@
-#Modules
+#Module 6
 
-
-from index_builder import get_bigrams
+from wildcard_handler import get_bigrams
 from string_formatting import get_formatted_tokens
 
 import pickle
@@ -9,7 +8,9 @@ import pickle
 class BRM:
 
     def __init__ (self, primary_index_path, *secondary_index_path):
-        
+        '''
+        Sets up the model, connecting it to the relevant indices
+        '''
         with open(primary_index_path, 'rb') as f: #open file
             self.primary_index = pickle.load(f)
 
@@ -18,6 +19,9 @@ class BRM:
                 self.secondary_index = pickle.load(f)
     
     def run_model(self, query):
+        '''
+        Main input, takes a query as a string. Returns a list of document ids containing that match the query, based on the boolean retrieval model
+        '''
         if "(" in query:
             query = query.replace("(", " ( ")
         if ")" in query:
@@ -28,8 +32,11 @@ class BRM:
         return self.loop(lst) #inherently won't have duplicates
 
     def lookup(self, string):
+        '''
+        Returns the ids that match the given string. Handles both strings with wildcards and regular strings, first tokenizing then using the index get the ids
+        '''
+        #Formatting
         terms = []
-
         if "*" in string:
             bigrams = get_bigrams(string)
             for bigram in bigrams:
@@ -40,17 +47,22 @@ class BRM:
         else:
             terms = [string]
         
+        #ID retrievals
         ids = []
-
         for term in terms:
             formatted = get_formatted_tokens(term)[0]
             try:
                 ids += self.primary_index[formatted]
             except:
                 continue
+
         return ids
         
     def loop(self, lst):
+        '''
+        Recursive function for handling the query formatting, to retrieve the results of each individual term and then merge the results based on the key word used.
+        Ultimately returns a list of unique, relevant document ids
+        '''
         if len(lst) == 1:
             return self.lookup(lst[0])
             #get values
@@ -91,8 +103,6 @@ class BRM:
 
             if excess_parentheses: #remove them
                 return self.loop(lst[1:len(lst) - 1])
-
-
 
 if __name__ == "__main__":
     test = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")

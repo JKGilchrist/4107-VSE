@@ -1,6 +1,7 @@
 #Module 2
 
 # Convert a collection of documents into a formatted corpus
+# The most important function externally is main()
 
 import os
 import sys
@@ -80,32 +81,31 @@ def create_columns():
     '''
     In anticipation of later expansion and more files, uses the directory to access all the raw files that should be converted into a corpus. 
     '''
-    
     path = "raw_files/"
-    
     files = os.listdir(path)
     
     titles = []
     descriptions = []
 
     for a_file in files: #In case it becomes a series of files later.
-        
         titles, descriptions = read_and_munge_file(path + a_file)
-    
 
     ids = list(range(0, len(titles)))
     return ids, titles, descriptions
 
 def create_csv_corpus(name):
+    '''
+    Creates the dataframe and saves it as a csv, using the given name as the file name
+    '''
     ids, titles, descriptions = create_columns()
 
     df = pd.DataFrame(list(zip(ids, titles, descriptions)), columns = ["id", "title", "description"])
 
     df.to_csv(name, sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
 
-def main():
-    create_csv_corpus("save_files/corpus.csv")
-    
 
-if __name__ == "__main__":
-    main()
+def main():
+    '''
+    The main function, that runs its all
+    '''
+    create_csv_corpus("save_files/corpus.csv")
