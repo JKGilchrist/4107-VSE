@@ -31,7 +31,7 @@ def controller(query, model, corpus):
             ids2.remove(x)
         ids = ids3 + ids2 + ids1
         return ids
-    #VSM
+
     else:
         print("TODO")
         ids = []
@@ -43,4 +43,3 @@ def controller(query, model, corpus):
 if __name__ == "__main__":
     x = controller("computer AND systems", 1, 1)
     print(x.head())
-
