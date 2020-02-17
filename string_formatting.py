@@ -6,7 +6,7 @@ import settings
 
 #modified from csi4106 notebook 5:
 import nltk
-nltk.download('stopwords') #can be commented out after first run
+#nltk.download('stopwords') #can be commented out after first run
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 #end
