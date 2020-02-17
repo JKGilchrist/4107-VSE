@@ -13,10 +13,25 @@ def spelling_correction(query, corpus):
                 query[i] = df.loc[0, 'word']
         print(query)
 
-
 def controller(query, model, corpus):
     #boolean
+    ids = []
     if model == 1:
         brm = BRM.BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
-        brm.run_model(query)
-        print(brm.run_model(query))
+        ids = brm.run_model(query)
+    #VSM
+    else:
+        print("TODO")
+        ids = []
+    
+    df = pd.read_csv("save_files/corpus.csv", sep = "|")
+    return df.loc[ ids , ["title", "description"]]
+
+if __name__ == "__main__":
+    x = controller("computer AND systems", 1, 1)
+    print(x.head())
+
+
+
+
+
