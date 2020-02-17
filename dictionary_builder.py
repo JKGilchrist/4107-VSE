@@ -35,3 +35,6 @@ def main():
     
     build_dic(get_list_from_df(df, "title"), "title_dic")
     build_dic(get_list_from_df(df, "description"), "description_dic")
+
+if __name__ == "__main__":
+    main()

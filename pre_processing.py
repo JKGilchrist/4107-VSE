@@ -109,3 +109,6 @@ def main():
     The main function, that runs its all
     '''
     create_csv_corpus("save_files/corpus.csv")
+
+if __name__ == "__main__":
+    main()

@@ -70,7 +70,7 @@ class BRM:
             excess_parentheses = False
 
             for i in range(len(lst)):
-                if lst[i] == "AND" or lst[i] == "OR" or lst[i] == "AND_NOT":
+                if lst[i].lower() == "and" or lst[i].lower() == "or" or lst[i].lower() == "and_not":
                     
                     before_start = lst[:i].count("(")
                     before_end = lst[:i].count(")")
@@ -101,7 +101,7 @@ class BRM:
                 elif i == len(lst) - 1: #couldnt find middle, due to extra parentheses around entire query
                     excess_parentheses = True
 
-            if excess_parentheses: #remove them
+            if excess_parentheses: #remove them, recall function
                 return self.loop(lst[1:len(lst) - 1])
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ import pickle
 
 import string_formatting
 
-from index_builder import get_bigrams
+from wildcard_handler import get_bigrams
 
 class index:
 
@@ -72,3 +72,6 @@ def build_all():
     desc_sec = index("save_files/description_dic.obj")
     desc_sec.build_secondary_index()
     desc_sec.save("description_secondary_index")
+
+if __name__ == "__main__":
+    build_all()
