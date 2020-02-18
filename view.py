@@ -1,6 +1,6 @@
 import tkinter as tk
+import pandas as pd
 from controller import controller, spelling_correction
-from string_formatting import get_formatted_tokens
 
 class ListItem(tk.Frame):
     def __init__(self, master, id, title, description, x, y):
@@ -125,12 +125,12 @@ class GUI(tk.Frame):
                  140)
 
     def search(self, query, model, corpus):
-        print(query, model, corpus)
-        if model == 2:
-            format_query = get_formatted_tokens(query)
-            spelling_correction(format_query, corpus)
-            controller(format_query, model, corpus)
-        controller(query, model, corpus)
+        # if model == 2:
+        #     # spelling_correction(query.split(" "), corpus)
+        #     controller(query, model, corpus)
+        corpus = pd.read_csv("save_files/corpus.csv", sep="|")
+        response = controller(query, model, corpus)
+        result = corpus[corpus['id'].isin(response[:10])]
 
 
 if __name__ == "__main__":

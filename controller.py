@@ -1,6 +1,8 @@
 import pandas as pd
 from spelling_correction import weighted_edit_distance
 from BRM import BRM
+from vsm import vsm
+from string_formatting import get_formatted_tokens
 
 def spelling_correction(query, corpus):
     if corpus == 1:
@@ -12,7 +14,6 @@ def spelling_correction(query, corpus):
             df = df.nsmallest(3, 'ed')
             if df.ed.iloc[0] != 0:
                 words = df['word'].to_list()
-                print(words)
                 return words
     return []
 
@@ -32,9 +33,11 @@ def controller(query, model, corpus):
         ids = ids3 + ids2 + ids1
         return ids
 
-    else:
-        print("TODO")
-        ids = []
+    if model == 2:
+        desc = pd.read_pickle("save_files/description_index_with_weight.obj")
+        title = pd.read_pickle("save_files/title_index_with_weight.obj")
+        repr = vsm(corpus, get_formatted_tokens(query), title, desc)
+        return list(repr.index.values)
     
     df = pd.read_csv("save_files/corpus.csv", sep = "|")
     return df.loc[ ids , ["title", "description"]]
