@@ -53,7 +53,15 @@ def read_and_munge_file(path):
                         line = remove_link(line)
 
                     if "/" in line and ("é" in line or "à" in line or "è" in line): #Handling bilingual courses
-                        index = line.find("/")
+                        count = line.count("/")
+                        num = 0
+                        start = 0
+                        while num + 1 != count // 2 + 1:
+                            start = line.find("/", start) + 1
+                            num +=1
+                        if start != 0:
+                            start -=1
+                        index = line.find("/", start)
                         line = line[index+2:]
                         #print(line)
                     
