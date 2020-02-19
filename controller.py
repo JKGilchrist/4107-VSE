@@ -43,7 +43,7 @@ def boolean_controller(query, corpus):
     '''
     desc_brm = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
     title_brm = BRM("save_files/title_index.obj", "save_files/title_secondary_index.obj")
-    desc_ids = desc_brm.run_model(query) 
+    desc_ids = desc_brm.run_model(query)
     title_ids = title_brm.run_model(query)
     both_ids = []
     ids = []
@@ -56,9 +56,9 @@ def boolean_controller(query, corpus):
             desc_ids.remove(x)
             title_ids.remove(x)
         ids = both_ids + title_ids + desc_ids
-    elif desc_ids != []:
+    elif desc_ids == []:
         ids = title_ids
-    elif title_ids != []:
+    elif title_ids == []:
         ids = desc_ids
     df = pd.read_csv("save_files/corpus.csv", sep = "|")
     return df.loc[ ids , ["title", "description"]]

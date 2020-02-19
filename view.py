@@ -27,7 +27,6 @@ class ListItem(tk.Frame):
         self.button.destroy()
         self.label.destroy()
 
-
     # modified from https://stackoverflow.com/questions/16803686/how-to-create-a-modal-dialog-in-tkinter
     def Create_Toplevel(self, id, title, description):
 
@@ -121,7 +120,7 @@ class GUI(tk.Frame):
         self.option3.bind("<Button-1>", lambda event, arg=3: self.callback(event, arg))
 
         # Model radio buttons
-        self.v = tk.IntVar(value=2)
+        self.v = tk.IntVar(value=1)
         self.model = self.v
         tk.Label(self.parent,
                  text="Model: ",
@@ -226,6 +225,7 @@ class GUI(tk.Frame):
         if result.empty:
             self.empty_result()
         else:
+            print(result)
             self.update(result)
 
 
