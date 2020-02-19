@@ -47,7 +47,11 @@ def vsm(collection, query, title, desc):
     tf_idf = tf_idf.groupby(tf_idf.index).sum()
     tf_idf['cosine'] = tf_idf.apply(lambda row: np.dot(row, query_df.iloc[0]), axis=1)
     tf_idf = tf_idf.nlargest(10, 'cosine')
-    return tf_idf.index.values
+    tf_idf['cosine'] = tf_idf['cosine'].round(2)
+    result = []
+    result.append(tf_idf.index.values)
+    result.append(tf_idf['cosine'].to_list())
+    return result
 
 
 if __name__ == "__main__":
