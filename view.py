@@ -14,7 +14,7 @@ class ListItem(tk.Frame):
                  command= lambda: self.Create_Toplevel(id, title, description))
         self.button.place(x=x, y=y)
         if str(description) == 'nan':
-            description = "No description provided"
+            description = "No description provided."
         if len(description) <= 140:
            txt = description
         else:
@@ -62,7 +62,7 @@ class GUI(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.parent = parent
         self.initialize_user_interface()
-        self.elems = []
+        self.tmp_elems = []
         self.query = []
         self.model = 1
         self.corpus = 1
@@ -89,37 +89,6 @@ class GUI(tk.Frame):
                   padx=20,
                   command=lambda: self.search(self.entry.get(), self.v.get(), self.w.get())) \
             .place(x=900, y=40)
-
-        #spelling correction
-        self.link = tk.Label(self.parent,
-                              text="",
-                                fg="blue")
-        self.link.place(x=280, y=60)
-        self.link.bind("<Button-1>", lambda event, arg=self.link.cget("text"): self.callback(event, arg))
-
-        #options spelling correction
-        self.did_you_mean = tk.Label(self.parent,
-                                text="")
-        self.did_you_mean.place(x=280, y=80)
-        self.did_you_mean.bind("<Button-1>", lambda event, arg=1: self.callback(event, arg))
-
-        self.option1 = tk.Label(self.parent,
-                             text="",
-                             fg="blue")
-        self.option1.place(x=370, y=80)
-        self.option1.bind("<Button-1>", lambda event, arg=1: self.callback(event, arg))
-
-        self.option2 = tk.Label(self.parent,
-                             text="",
-                             fg="blue")
-        self.option2.place(x=585, y=80)
-        self.option2.bind("<Button-1>", lambda event, arg=2: self.callback(event, arg))
-
-        self.option3 = tk.Label(self.parent,
-                             text="",
-                             fg="blue")
-        self.option3.place(x=800, y=80)
-        self.option3.bind("<Button-1>", lambda event, arg=3: self.callback(event, arg))
 
         # Model radio buttons
         self.v = tk.IntVar(value=1)
@@ -158,16 +127,33 @@ class GUI(tk.Frame):
                        state = "disabled",
                        value=2).place(x=480, y=120)
 
+    def did_you_mean(self, responses):
+        
+        x = tk.Label(self.parent,text= "Spelling mistake detected. Showing search results instead for '" + responses[1] + "'.")
+        x.place(x=280, y=60)
+        self.tmp_elems.append(x)
 
-    def callback(self, event, args):
-        # self.search(self.query, self.model, self.corpus)
-        if args != "":
-            self.link.config(text="")
-            self.option1.config(text="")
-            self.option2.config(text="")
-            self.option3.config(text="")
-            self.did_you_mean.config(text="")
-            self.search(self.query[args], self.model, self.corpus)
+        #options spelling correction
+        y = tk.Label(self.parent,text="Did you mean:")
+        y.place(x=280, y=80)
+        self.tmp_elems.append(y)
+        for i in range(3):
+            j = 0
+            if i > 0:
+                j = i + 1
+            op = tk.Label(self.parent,
+                             text=responses[j],
+                             fg="blue")
+            op.place(x=370 + i * 100, y=80)
+            op.bind("<Button-1>", lambda event, arg= 1 + i: self.handle_replacement(arg, responses[arg]))
+
+            self.tmp_elems.append(op)
+
+
+    def handle_replacement(self, args, txt):
+        self.entry.delete(0, tk.END)
+        self.entry.insert(0, txt)
+        self.search(self.query[args], self.model, self.corpus)
 
     def update(self, df):
         ind = 1
@@ -179,17 +165,17 @@ class GUI(tk.Frame):
                  280,
                  150 + 70 * (ind - 1)) 
             ind += 1
-            self.elems.append(x)
+            self.tmp_elems.append(x)
 
     def empty_result(self):
         x = tk.Label(self.parent, text="This query did not return any results")
         x.place(x=280, y=150)
-        self.elems.append(x)
+        self.tmp_elems.append(x)
 
     def search(self, query, model, corpus, spell_correct = 1):
         print(query)
 
-        for elem in self.elems:
+        for elem in self.tmp_elems:
             elem.destroy()
         
         result = pd.DataFrame()
@@ -205,22 +191,13 @@ class GUI(tk.Frame):
             response = spelling_correction(query.split(" "), corpus)
             self.query = response
             if len(response) > 0:
-                self.link.config(text=response[1])
-                self.option1.config(text=response[0])
-                self.option2.config(text=response[2])
-                self.option3.config(text=response[3])
-                self.did_you_mean.config(text="Did you mean:")
+                self.did_you_mean(response)
                 query = response[1]
-            else:
-                self.link.config(text="")
-                self.option1.config(text="")
-                self.option2.config(text="")
-                self.option3.config(text="")
-                self.did_you_mean.config(text="")
                 
             try:
                 if query != '':
                     result = vector_controller(query, corpus)
+                    
             except:
                 print("VSM fail")
 
