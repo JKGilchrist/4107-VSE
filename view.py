@@ -133,7 +133,7 @@ class GUI(tk.Frame):
         x = tk.Label(self.parent,text= "Spelling mistake detected. Showing search results instead for '" + responses[1] + "'.")
         x.place(x=280, y=60)
         self.tmp_elems.append(x)
-
+        print(responses)
         #options spelling correction
         y = tk.Label(self.parent,text="Did you mean:")
         y.place(x=280, y=80)
@@ -146,7 +146,7 @@ class GUI(tk.Frame):
                              text=responses[j],
                              fg="blue")
             op.place(x=370 + i * 100, y=80)
-            op.bind("<Button-1>", lambda event, arg= 1 + i: self.handle_replacement(arg, responses[arg]))
+            op.bind("<Button-1>", lambda event, arg= j: self.handle_replacement(arg, responses[arg]))
 
             self.tmp_elems.append(op)
 
