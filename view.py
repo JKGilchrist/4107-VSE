@@ -130,13 +130,12 @@ class GUI(tk.Frame):
                        value=2).place(x=480, y=120)
 
     def did_you_mean(self, responses):
-        
         x = tk.Label(self.parent,text= "Spelling mistake detected. Showing search results instead for '" + responses[1] + "'.")
         x.place(x=280, y=60)
         self.tmp_elems.append(x)
 
         #options spelling correction
-        y = tk.Label(self.parent,text="Did you mean:")
+        y = tk.Label(self.parent,text="Search instead for:")
         y.place(x=280, y=80)
         self.tmp_elems.append(y)
         for i in range(3):
