@@ -135,7 +135,7 @@ class GUI(tk.Frame):
         self.tmp_elems.append(x)
 
         #options spelling correction
-        y = tk.Label(self.parent,text="Search instead for:")
+        y = tk.Label(self.parent,text="Did you mean:")
         y.place(x=280, y=80)
         self.tmp_elems.append(y)
         for i in range(3):
