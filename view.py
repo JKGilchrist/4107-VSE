@@ -154,7 +154,7 @@ class GUI(tk.Frame):
     def handle_replacement(self, args, txt):
         self.entry.delete(0, tk.END)
         self.entry.insert(0, txt)
-        self.search(self.query[args], self.model, self.corpus)
+        self.search(self.query[args], 2, self.corpus)
 
     def update(self, df):
         ind = 1
