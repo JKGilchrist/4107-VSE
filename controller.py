@@ -12,12 +12,14 @@ def spelling_correction(query, corpus):
     elements are the top three most likely queries.
     '''
     result = [query] * 3
+    flag = False
     for i in range(len(query)):
         df = pd.read_csv("save_files/word_lists/" + query[i][0] + "word.csv", quoting=3, error_bad_lines=False)
         df.columns = ['word']
         df = df.drop_duplicates()
         df['word'] = df['word'].astype(str)
         if not df['word'].str.contains(query[i]).any():
+            flag = True
             df['ed'] = df.apply(lambda x: weighted_edit_distance(query[i], x['word'].strip()), axis=1)
             df['format'] = df['word'].apply(lambda x: get_formatted_tokens(x))
             df['format'] = df['format'].apply(lambda x: ' '.join(x))
@@ -30,8 +32,8 @@ def spelling_correction(query, corpus):
                 temp = result[j].copy()
                 temp[i] = words[j].strip()
                 result[j] = temp
-        else:
-            return []
+    if (flag == False):
+        return []
     result.insert(0, query)
     for i in range(len(result)):
         result[i] = ' '.join(result[i])
