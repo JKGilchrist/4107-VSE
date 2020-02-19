@@ -1,5 +1,6 @@
 import tkinter as tk
 import pandas as pd
+import math
 from controller import boolean_controller, vector_controller, spelling_correction
 
 class ListItem(tk.Frame):
@@ -12,11 +13,12 @@ class ListItem(tk.Frame):
                  padx=20,
                  command= lambda: self.Create_Toplevel(id, title, description))
         self.button.place(x=x, y=y)
-        txt = description[:140] + " ..."#""
-        #if len(description) <= 140:
-        #    txt = description
-        #else:
-        #    txt = description[:140] + " ..."
+        if str(description) == 'nan':
+            description = "No description provided"
+        if len(description) <= 140:
+           txt = description
+        else:
+           txt = description[:140] + " ..."
         self.label = tk.Label(self.master,
                  text=txt,
                  wraplength = 500,

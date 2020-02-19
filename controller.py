@@ -25,7 +25,7 @@ def spelling_correction(query, corpus):
             df['format'] = df['format'].apply(lambda x: ' '.join(x))
             df2 = pd.read_pickle("save_files/weighted_ed_df.pkl")
             df['in_corpus'] = df['format'].isin(df2['word'].tolist())
-            df['ed'] = np.where(df['in_corpus'] == True, df['ed'] - 1, df['ed'])
+            df['ed'] = np.where(df['in_corpus'] == True, df['ed'] - 3, df['ed'])
             df = df.nsmallest(3, 'ed')
             words = df['word'].tolist()
             for j in range(len(words)):
@@ -37,7 +37,6 @@ def spelling_correction(query, corpus):
     result.insert(0, query)
     for i in range(len(result)):
         result[i] = ' '.join(result[i])
-    print(result)
     return result
 
 def boolean_controller(query, corpus):
