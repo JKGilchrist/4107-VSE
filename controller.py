@@ -15,13 +15,9 @@ def spelling_correction(query, corpus):
     flag = False
     for i in range(len(query)):
         df = pd.read_csv("save_files/word_lists/" + query[i][0] + "word.csv", quoting=3, error_bad_lines=False)
-        df.columns = ['word']
-        df['word'] = df['word'].astype(str)
         if not df['word'].str.contains(query[i]).any():
             flag = True
             df['ed'] = df.apply(lambda x: weighted_edit_distance(query[i], x['word'].strip()), axis=1)
-            df['format'] = df['word'].apply(lambda x: get_formatted_tokens(x))
-            df['format'] = df['format'].apply(lambda x: ' '.join(x))
             df2 = pd.read_pickle("save_files/weighted_ed_df.pkl")
             df['in_corpus'] = df['format'].isin(df2['word'].tolist())
             df['ed'] = np.where(df['in_corpus'] == True, df['ed'] - 3, df['ed'])
