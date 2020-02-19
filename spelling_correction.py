@@ -35,14 +35,16 @@ neighbors_of['m'] = ['j', 'k', 'n']
 
 class CharacterSubstitution(CharacterSubstitutionInterface):
     def cost(self, c0, c1):
-        if (c0 in 'aeiou') and (c1 in 'aeiou'):
+        if c0 == c1:
+            return 0
+        elif (c0 in 'aeiou') and (c1 in 'aeiou'):
             return 0.5
-        elif (not(c0 in 'aeiou')) and (c1 in 'aeiou'):
-            return 0.75
         elif not c0.isdigit():
             if c1 in neighbors_of[c0]:
                 return 0.5
-        return 1.0
+        elif (not(c0 in 'aeiou')) and (c1 in 'aeiou'):
+            return 0.75
+        return 1
 
 def weighted_edit_distance(x, y):
     weighted_levenshtein = WeightedLevenshtein(CharacterSubstitution())

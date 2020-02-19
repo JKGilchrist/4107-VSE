@@ -54,6 +54,9 @@ class GUI(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.parent = parent
         self.initialize_user_interface()
+        self.query = []
+        self.model = 1
+        self.corpus = 1
 
     def initialize_user_interface(self):
         self.parent.geometry("1000x1000")
@@ -79,43 +82,70 @@ class GUI(tk.Frame):
             .place(x=900, y=40)
 
         #spelling correction
-        self.label = tk.Label(self.parent,
-                              text="")
-        self.label.place(x=300, y=60)
+        self.link = tk.Label(self.parent,
+                              text="",
+                                fg="blue")
+        self.link.place(x=280, y=60)
+        self.link.bind("<Button-1>", lambda event, arg=self.link.cget("text"): self.callback(event, arg))
+
+        #options spelling correction
+        self.text = tk.Label(self.parent,
+                                text="Did you mean:")
+        self.text.place(x=280, y=80)
+
+        self.option1 = tk.Label(self.parent,
+                             text="",
+                             fg="blue")
+        self.option1.place(x=370, y=80)
+        self.option1.bind("<Button-1>", lambda event, arg=1: self.callback(event, arg))
+
+        self.option2 = tk.Label(self.parent,
+                             text="",
+                             fg="blue")
+        self.option2.place(x=585, y=80)
+        self.option2.bind("<Button-1>", lambda event, arg=2: self.callback(event, arg))
+
+        self.option3 = tk.Label(self.parent,
+                             text="",
+                             fg="blue")
+        self.option3.place(x=800, y=80)
+        self.option3.bind("<Button-1>", lambda event, arg=3: self.callback(event, arg))
 
         # Model radio buttons
-        self.v = tk.IntVar(value=0)
+        self.v = tk.IntVar(value=2)
+        self.model = self.v
         tk.Label(self.parent,
                  text="Model: ",
                  justify=tk.LEFT,
-                 padx=20).place(x=280, y=80)
+                 padx=20).place(x=280, y=100)
         tk.Radiobutton(root,
                        text="Boolean",
                        padx=20,
                        variable=self.v,
-                       value=1).place(x=350, y=80)
+                       value=1).place(x=350, y=100)
         tk.Radiobutton(root,
                        text="Vector Space",
                        padx=20,
                        variable=self.v,
-                       value=2).place(x=480, y=80)
+                       value=2).place(x=480, y=100)
 
         # Corpus radio buttons
-        self.w = tk.IntVar(value=0)
+        self.w = tk.IntVar(value=1)
+        self.corpus = self.w
         tk.Label(self.parent,
                  text="Corpus:",
                  justify=tk.LEFT,
-                 padx=20).place(x=280, y=100)
+                 padx=20).place(x=280, y=120)
         tk.Radiobutton(root,
                        text="UofO catalog",
                        padx=20,
                        variable=self.w,
-                       value=1).place(x=350, y=100)
+                       value=1).place(x=350, y=120)
         tk.Radiobutton(root,
                        text="Reuters",
                        padx=20,
                        variable=self.w,
-                       value=2).place(x=480, y=100)
+                       value=2).place(x=480, y=120)
 
         ListItem(root,
                  1,
@@ -124,10 +154,33 @@ class GUI(tk.Frame):
                  280,
                  140)
 
-    def search(self, query, model, corpus):
-        # if model == 2:
-        #     # spelling_correction(query.split(" "), corpus)
-        #     controller(query, model, corpus)
+    def callback(self, event, args):
+        # self.search(self.query, self.model, self.corpus)
+        print("callback")
+        print(args)
+        if args != "":
+            self.link.config(text="")
+            self.option1.config(text="")
+            self.option2.config(text="")
+            self.option3.config(text="")
+            self.search(self.query[args], self.model, self.corpus)
+
+    def search(self, query, model, corpus, spell_correct = 1):
+        if model == 2:
+            response = spelling_correction(query.split(" "), corpus)
+            self.query = response
+            if len(response) > 0:
+                self.link.config(text=response[0])
+                self.option1.config(text=response[1])
+                self.option2.config(text=response[2])
+                self.option3.config(text=response[3])
+                controller(response[1], model, corpus)
+            else:
+                self.link.config(text="")
+                self.option1.config(text="")
+                self.option2.config(text="")
+                self.option3.config(text="")
+                controller(query, model, corpus)
         corpus = pd.read_csv("save_files/corpus.csv", sep="|")
         response = controller(query, model, corpus)
         result = corpus[corpus['id'].isin(response[:10])]

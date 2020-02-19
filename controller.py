@@ -1,21 +1,36 @@
 import pandas as pd
+import numpy as np
 from spelling_correction import weighted_edit_distance
 from BRM import BRM
 from vsm import vsm
 from string_formatting import get_formatted_tokens
 
 def spelling_correction(query, corpus):
-    if corpus == 1:
-        for i in range(len(query)):
-            df = pd.read_csv("save_files/word_lists/" + query[i][0] + "word.csv", quoting=3, error_bad_lines=False)
-            df.columns = ['word']
-            df = df.drop_duplicates()
-            df['ed'] = df.apply(lambda x: weighted_edit_distance(query[i], x['word']), axis=1)
+    result = [query] * 3
+    for i in range(len(query)):
+        df = pd.read_csv("save_files/word_lists/" + query[i][0] + "word.csv", quoting=3, error_bad_lines=False)
+        df.columns = ['word']
+        df = df.drop_duplicates()
+        df['word'] = df['word'].astype(str)
+        if not df['word'].str.contains(query[i]).any():
+            df['ed'] = df.apply(lambda x: weighted_edit_distance(query[i], x['word'].strip()), axis=1)
+            df['format'] = df['word'].apply(lambda x: get_formatted_tokens(x))
+            df['format'] = df['format'].apply(lambda x: ' '.join(x))
+            df2 = pd.read_pickle("save_files/weighted_ed_df.pkl")
+            df['in_corpus'] = df['format'].isin(df2['word'].tolist())
+            df['ed'] = np.where(df['in_corpus'] == True, df['ed'] - 1, df['ed'])
             df = df.nsmallest(3, 'ed')
-            if df.ed.iloc[0] != 0:
-                words = df['word'].to_list()
-                return words
-    return []
+            words = df['word'].tolist()
+            for j in range(len(words)):
+                temp = query.copy()
+                temp[i] = words[j].strip()
+                result[j] = temp
+        else:
+            return []
+    result.insert(0, query)
+    for i in range(len(result)):
+        result[i] = ' '.join(result[i])
+    return result
 
 def controller(query, model, corpus):
     #boolean
@@ -33,7 +48,9 @@ def controller(query, model, corpus):
         ids = ids3 + ids2 + ids1
         return ids
 
+    #vsm
     if model == 2:
+        print('HERE!!!')
         desc = pd.read_pickle("save_files/description_index_with_weight.obj")
         title = pd.read_pickle("save_files/title_index_with_weight.obj")
         repr = vsm(corpus, get_formatted_tokens(query), title, desc)
@@ -44,5 +61,7 @@ def controller(query, model, corpus):
 
 
 if __name__ == "__main__":
-    x = controller("computer AND systems", 1, 1)
-    print(x.head())
+    # x = controller("computer AND systems", 1, 1)
+    # print(x.head())
+    print(spelling_correction(['compter', 'programing'], 1))
+
