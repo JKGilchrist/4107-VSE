@@ -27,7 +27,7 @@ def spelling_correction(query, corpus):
             df = df.nsmallest(3, 'ed')
             words = df['word'].tolist()
             for j in range(len(words)):
-                temp = query.copy()
+                temp = result[j].copy()
                 temp[i] = words[j].strip()
                 result[j] = temp
         else:

@@ -97,9 +97,10 @@ class GUI(tk.Frame):
         self.link.bind("<Button-1>", lambda event, arg=self.link.cget("text"): self.callback(event, arg))
 
         #options spelling correction
-        self.text = tk.Label(self.parent,
-                                text="Did you mean:")
-        self.text.place(x=280, y=80)
+        self.did_you_mean = tk.Label(self.parent,
+                                text="")
+        self.did_you_mean.place(x=280, y=80)
+        self.did_you_mean.bind("<Button-1>", lambda event, arg=1: self.callback(event, arg))
 
         self.option1 = tk.Label(self.parent,
                              text="",
@@ -164,6 +165,7 @@ class GUI(tk.Frame):
             self.option1.config(text="")
             self.option2.config(text="")
             self.option3.config(text="")
+            self.did_you_mean.config(text="")
             self.search(self.query[args], self.model, self.corpus)
 
     def update(self, df):
@@ -202,19 +204,22 @@ class GUI(tk.Frame):
             response = spelling_correction(query.split(" "), corpus)
             self.query = response
             if len(response) > 0:
-                self.link.config(text=response[0])
-                self.option1.config(text=response[1])
+                self.link.config(text=response[1])
+                self.option1.config(text=response[0])
                 self.option2.config(text=response[2])
                 self.option3.config(text=response[3])
+                self.did_you_mean.config(text="Did you mean:")
                 query = response[1]
             else:
                 self.link.config(text="")
                 self.option1.config(text="")
                 self.option2.config(text="")
                 self.option3.config(text="")
+                self.did_you_mean.config(text="")
                 
             try:
-                result = vector_controller(query, corpus)
+                if query != '':
+                    result = vector_controller(query, corpus)
             except:
                 print("VSM fail")
 
