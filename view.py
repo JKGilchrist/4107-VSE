@@ -159,8 +159,6 @@ class GUI(tk.Frame):
 
     def callback(self, event, args):
         # self.search(self.query, self.model, self.corpus)
-        print("callback")
-        print(args)
         if args != "":
             self.link.config(text="")
             self.option1.config(text="")
@@ -219,9 +217,7 @@ class GUI(tk.Frame):
                 result = vector_controller(query, corpus)
             except:
                 print("VSM fail")
-        
-        print(result)
-        print(len(result))
+
         if result.empty:
             self.empty_result()
         else:

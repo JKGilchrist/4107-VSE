@@ -57,19 +57,11 @@ def boolean_controller(query, corpus):
 
 def vector_controller(query, corpus):
     
-    print('HERE!!!')
     desc = pd.read_pickle("save_files/description_index_with_weight.obj")
     title = pd.read_pickle("save_files/title_index_with_weight.obj")
     repr = vsm(corpus, get_formatted_tokens(query), title, desc)
-    response = list(repr.index.values)
-    
     corpus = pd.read_csv("save_files/corpus.csv", sep="|")
-    result = corpus[corpus['id'].isin(response)][["title", "description"]]
+    result = corpus.loc[ repr , ["title", "description"]]
     
     return result
-
-if __name__ == "__main__":
-    # x = controller("computer AND systems", 1, 1)
-    # print(x.head())
-    print(spelling_correction(['compter', 'programing'], 1))
 
