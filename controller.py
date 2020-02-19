@@ -35,6 +35,7 @@ def spelling_correction(query, corpus):
     result.insert(0, query)
     for i in range(len(result)):
         result[i] = ' '.join(result[i])
+    print(result)
     return result
 
 def boolean_controller(query, corpus):
