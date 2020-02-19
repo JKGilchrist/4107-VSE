@@ -6,6 +6,11 @@ from vsm import vsm
 from string_formatting import get_formatted_tokens
 
 def spelling_correction(query, corpus):
+    '''
+    If no spelling correction needed returns an empty list.
+    If spelling correction, returns a list where the first element is the original query, and the subsequent three
+    elements are the top three most likely queries.
+    '''
     result = [query] * 3
     for i in range(len(query)):
         df = pd.read_csv("save_files/word_lists/" + query[i][0] + "word.csv", quoting=3, error_bad_lines=False)

@@ -1,6 +1,5 @@
 from similarity.weighted_levenshtein import WeightedLevenshtein
 from similarity.weighted_levenshtein import CharacterSubstitutionInterface
-import pickle
 import pandas as pd
 
 #source for neighbors_of https://kth.diva-portal.org/smash/get/diva2:1116701/FULLTEXT01.pdf
@@ -34,6 +33,10 @@ neighbors_of['n'] = ['h', 'j', 'm', 'b']
 neighbors_of['m'] = ['j', 'k', 'n']
 
 class CharacterSubstitution(CharacterSubstitutionInterface):
+    '''
+    Applies weights to vowel vs consonant substitutions
+    Lowers weights of substitution with neighbours
+    '''
     def cost(self, c0, c1):
         if c0 == c1:
             return 0
@@ -47,6 +50,9 @@ class CharacterSubstitution(CharacterSubstitutionInterface):
         return 1
 
 def weighted_edit_distance(x, y):
+    '''
+       Returns weighted edit distance between string x and string y
+    '''
     weighted_levenshtein = WeightedLevenshtein(CharacterSubstitution())
     if x[0] != y[0]:
         return weighted_levenshtein.distance(x, y) + 1

@@ -3,6 +3,9 @@ from scipy.spatial.distance import cosine
 import numpy as np
 
 def vsm(collection, query, title, desc):
+    '''
+    Returns a list of the ids of the 10 most similar documents using the vsm model
+    '''
     # create query df
     values = []
     query_no_duplicates = []
