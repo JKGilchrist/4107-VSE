@@ -13,13 +13,6 @@ python main.py
 
 To see the actual code used to generate them, see pre_processing.py, dictionary_builder.py, and index_builder.py 
 
-To regenerate weighted_ed_df.pkl, description_index_with_weight.obj, and title_index_with_weight.obj:
-
-```
-python create_Weighted_ed_df.ipynb
-python generate_td_idf.ipynb
-```
-
 ## To Run
 
 Install pandas, pickle, math, os, re, similarity, nltk, tkinter and numpy libraries. 
