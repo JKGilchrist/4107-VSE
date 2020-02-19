@@ -14,6 +14,7 @@ def spelling_correction(query, corpus):
     result = [query] * 3
     flag = False
     for i in range(len(query)):
+        query[i] = query[i].lower()
         df = pd.read_csv("save_files/word_lists/" + query[i][0] + "word.csv", quoting=3, error_bad_lines=False, sep = "|")
         if not df['word'].str.contains(query[i]).any():
             flag = True
@@ -64,6 +65,7 @@ def vector_controller(query, corpus):
     '''
     Returns a DataFrame containing the results of the VSM for the given query on the given corpus
     '''
+    query.lower()
     desc = pd.read_pickle("save_files/description_index_with_weight.obj")
     title = pd.read_pickle("save_files/title_index_with_weight.obj")
     repr = vsm(corpus, get_formatted_tokens(query), title, desc)
