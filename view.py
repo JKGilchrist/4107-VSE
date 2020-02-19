@@ -154,7 +154,7 @@ class GUI(tk.Frame):
     def handle_replacement(self, args, txt):
         self.entry.delete(0, tk.END)
         self.entry.insert(0, txt)
-        self.search(self.query[args], 2, self.corpus)
+        self.search(self.query[args], 2, self.corpus, 0)
 
     def update(self, df):
         ind = 1
@@ -194,11 +194,12 @@ class GUI(tk.Frame):
                 result = pd.DataFrame()
 
         else: # model == 2:
-            response = spelling_correction(query.split(" "), corpus)
-            self.query = response
-            if len(response) > 0:
-                self.did_you_mean(response)
-                query = response[1]
+            if spell_correct:
+                response = spelling_correction(query.split(" "), corpus)
+                self.query = response
+                if len(response) > 0:
+                    self.did_you_mean(response)
+                    query = response[1]
                 
             try:
                 if query != '':
