@@ -33,6 +33,9 @@ def spelling_correction(query, corpus):
     return result
 
 def boolean_controller(query, corpus):
+    '''
+    Returns a DataFrame containing the results of the BRM for the given query on the given corpus
+    '''
     desc_brm = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
     title_brm = BRM("save_files/title_index.obj", "save_files/title_secondary_index.obj")
     desc_ids = desc_brm.run_model(query) 
@@ -56,7 +59,9 @@ def boolean_controller(query, corpus):
     return df.loc[ ids , ["title", "description"]]
 
 def vector_controller(query, corpus):
-    
+    '''
+    Returns a DataFrame containing the results of the VSM for the given query on the given corpus
+    '''
     desc = pd.read_pickle("save_files/description_index_with_weight.obj")
     title = pd.read_pickle("save_files/title_index_with_weight.obj")
     repr = vsm(corpus, get_formatted_tokens(query), title, desc)
@@ -64,4 +69,3 @@ def vector_controller(query, corpus):
     result = corpus.loc[ repr , ["title", "description"]]
     
     return result
-
