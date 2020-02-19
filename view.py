@@ -4,7 +4,7 @@ import math
 from controller import boolean_controller, vector_controller, spelling_correction
 
 class ListItem(tk.Frame):
-    def __init__(self, master, id, title, description, x, y):
+    def __init__(self, master, id, title, description, x, y, score):
         tk.Frame.__init__(self, master, bg='white', relief='ridge', bd=2)
 
         self.button = tk.Button(self.master,
@@ -18,7 +18,9 @@ class ListItem(tk.Frame):
         if len(description) <= 140:
            txt = description
         else:
-           txt = description[:140] + " ..."
+           txt = description[:140].strip() + " ..."
+        if score != -1:
+            txt = txt + " (" + str(score) + ")"
         self.label = tk.Label(self.master,
                  text=txt,
                  wraplength = 500,
@@ -158,12 +160,17 @@ class GUI(tk.Frame):
     def update(self, df):
         ind = 1
         for _, row in df[:10].iterrows():
+            score = -1
+            
+            if "score" in df.columns:
+                score = row["score"]
             x = ListItem(root,
                  ind,
                  row["title"],
                  row["description"],
                  280,
-                 150 + 70 * (ind - 1)) 
+                 150 + 70 * (ind - 1), 
+                 score) 
             ind += 1
             self.tmp_elems.append(x)
 
@@ -197,7 +204,6 @@ class GUI(tk.Frame):
             try:
                 if query != '':
                     result = vector_controller(query, corpus)
-                    
             except:
                 print("VSM fail")
 
