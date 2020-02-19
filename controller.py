@@ -32,33 +32,41 @@ def spelling_correction(query, corpus):
         result[i] = ' '.join(result[i])
     return result
 
-def controller(query, model, corpus):
-    #boolean
+def boolean_controller(query, corpus):
+    desc_brm = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
+    title_brm = BRM("save_files/title_index.obj", "save_files/title_secondary_index.obj")
+    desc_ids = desc_brm.run_model(query) 
+    title_ids = title_brm.run_model(query)
+    both_ids = []
     ids = []
-    if model == 1:
-        desc_brm = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
-        title_brm = BRM("save_files/title_index.obj", "save_files/title_secondary_index.obj")
-        ids1 = desc_brm.run_model(query)
-        ids2 = title_brm.run_model(query)
-
-        ids3 = [t for t in ids2 if t in ids1]  # in both
-        for x in ids3:
-            ids1.remove(x)
-            ids2.remove(x)
-        ids = ids3 + ids2 + ids1
-        return ids
-
-    #vsm
-    if model == 2:
-        print('HERE!!!')
-        desc = pd.read_pickle("save_files/description_index_with_weight.obj")
-        title = pd.read_pickle("save_files/title_index_with_weight.obj")
-        repr = vsm(corpus, get_formatted_tokens(query), title, desc)
-        return list(repr.index.values)
-    
+    if desc_ids != [] and title_ids != []:
+        for x in title_ids:
+            if x in desc_ids:
+                both_ids.append(x)
+        both_ids = list(set(both_ids))
+        for x in both_ids:
+            desc_ids.remove(x)
+            title_ids.remove(x)
+        ids = both_ids + title_ids + desc_ids
+    elif desc_ids != []:
+        ids = title_ids
+    elif title_ids != []:
+        ids = desc_ids
     df = pd.read_csv("save_files/corpus.csv", sep = "|")
     return df.loc[ ids , ["title", "description"]]
 
+def vector_controller(query, corpus):
+    
+    print('HERE!!!')
+    desc = pd.read_pickle("save_files/description_index_with_weight.obj")
+    title = pd.read_pickle("save_files/title_index_with_weight.obj")
+    repr = vsm(corpus, get_formatted_tokens(query), title, desc)
+    response = list(repr.index.values)
+    
+    corpus = pd.read_csv("save_files/corpus.csv", sep="|")
+    result = corpus[corpus['id'].isin(response)][["title", "description"]]
+    
+    return result
 
 if __name__ == "__main__":
     # x = controller("computer AND systems", 1, 1)

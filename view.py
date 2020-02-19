@@ -1,25 +1,32 @@
 import tkinter as tk
 import pandas as pd
-from controller import controller, spelling_correction
+from controller import boolean_controller, vector_controller, spelling_correction
 
 class ListItem(tk.Frame):
     def __init__(self, master, id, title, description, x, y):
         tk.Frame.__init__(self, master, bg='white', relief='ridge', bd=2)
 
-        self.item(id, title, description, x, y)
-
-    def item(self, id, title, description, x, y):
-        tk.Button(self.master,
+        self.button = tk.Button(self.master,
                  text=str(id) + ": " + title,
                  justify=tk.LEFT,
                  padx=20,
-                 command= lambda: self.Create_Toplevel(id, title, description))\
-            .place(x=x, y=y)
-        tk.Label(self.master,
-                 text=description[0:200] + " ...",
+                 command= lambda: self.Create_Toplevel(id, title, description))
+        self.button.place(x=x, y=y)
+        txt = description[:140] + " ..."#""
+        #if len(description) <= 140:
+        #    txt = description
+        #else:
+        #    txt = description[:140] + " ..."
+        self.label = tk.Label(self.master,
+                 text=txt,
                  wraplength = 500,
-                 justify=tk.LEFT)\
-            .place(x=x, y=y+30)
+                 justify= tk.LEFT)
+        self.label.place(x=x + 20, y=y+30)
+    
+    def destroy(self):
+        self.button.destroy()
+        self.label.destroy()
+
 
     # modified from https://stackoverflow.com/questions/16803686/how-to-create-a-modal-dialog-in-tkinter
     def Create_Toplevel(self, id, title, description):
@@ -54,6 +61,7 @@ class GUI(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.parent = parent
         self.initialize_user_interface()
+        self.elems = []
         self.query = []
         self.model = 1
         self.corpus = 1
@@ -145,14 +153,9 @@ class GUI(tk.Frame):
                        text="Reuters",
                        padx=20,
                        variable=self.w,
+                       state = "disabled",
                        value=2).place(x=480, y=120)
 
-        ListItem(root,
-                 1,
-                 "ADM 1100 Introduction to Business Management (3 units)",
-                 "This course provides the student with the basic knowledge necessary to effectively manage an organization. The student will learn what constitutes the manager's role and how the managerial functions of planning, organizing, leading, controlling, and communication are used to oversee the organization's human, financial, physical, material, and commercial resources. In particular, through the case method approach, students will be introduced to the art of logical problem solving, while addressing such issues as corporate social responsibility and managerial ethics.",
-                 280,
-                 140)
 
     def callback(self, event, args):
         # self.search(self.query, self.model, self.corpus)
@@ -165,8 +168,39 @@ class GUI(tk.Frame):
             self.option3.config(text="")
             self.search(self.query[args], self.model, self.corpus)
 
+    def update(self, df):
+        ind = 1
+        for _, row in df[:10].iterrows():
+            x = ListItem(root,
+                 ind,
+                 row["title"],
+                 row["description"],
+                 280,
+                 150 + 70 * (ind - 1)) 
+            ind += 1
+            self.elems.append(x)
+
+    def empty_result(self):
+        x = tk.Label(self.parent, text="This query did not return any results")
+        x.place(x=280, y=150)
+        self.elems.append(x)
+
     def search(self, query, model, corpus, spell_correct = 1):
-        if model == 2:
+        print(query)
+
+        for elem in self.elems:
+            elem.destroy()
+        
+        result = pd.DataFrame()
+
+        if model == 1:
+            try:
+                result = boolean_controller(query, corpus)
+            except:
+                print("BRM fail")
+                result = pd.DataFrame()
+
+        else: # model == 2:
             response = spelling_correction(query.split(" "), corpus)
             self.query = response
             if len(response) > 0:
@@ -174,16 +208,24 @@ class GUI(tk.Frame):
                 self.option1.config(text=response[1])
                 self.option2.config(text=response[2])
                 self.option3.config(text=response[3])
-                controller(response[1], model, corpus)
+                query = response[1]
             else:
                 self.link.config(text="")
                 self.option1.config(text="")
                 self.option2.config(text="")
                 self.option3.config(text="")
-                controller(query, model, corpus)
-        corpus = pd.read_csv("save_files/corpus.csv", sep="|")
-        response = controller(query, model, corpus)
-        result = corpus[corpus['id'].isin(response[:10])]
+                
+            try:
+                result = vector_controller(query, corpus)
+            except:
+                print("VSM fail")
+        
+        print(result)
+        print(len(result))
+        if result.empty:
+            self.empty_result()
+        else:
+            self.update(result)
 
 
 if __name__ == "__main__":
