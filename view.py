@@ -18,7 +18,7 @@ class ListItem(tk.Frame):
         if len(description) <= 140:
            txt = description
         else:
-           txt = description[:140].strip() + " ..."
+           txt = description[:140].strip() + "..."
         if score != -1:
             txt = txt + " (" + str(score) + ")"
         self.label = tk.Label(self.master,

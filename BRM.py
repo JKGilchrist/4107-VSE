@@ -77,7 +77,6 @@ class BRM:
         Ultimately returns a list of unique, relevant document ids
         '''
         if len(lst) == 1:
-            print("R")
             return self.lookup(lst[0])
             #get values
         else:
