@@ -39,10 +39,10 @@ def boolean_controller(query, corpus):
     '''
     Returns a DataFrame containing the results of the BRM for the given query on the given corpus
     '''
-    desc_brm = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
     title_brm = BRM("save_files/title_index.obj", "save_files/title_secondary_index.obj")
-    desc_ids = desc_brm.run_model(query)
     title_ids = title_brm.run_model(query)
+    desc_brm = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
+    desc_ids = desc_brm.run_model(query)
     
     both_ids = []
     ids = []

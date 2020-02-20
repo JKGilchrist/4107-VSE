@@ -1,26 +1,30 @@
 # 4107-VSE
-Vanilla Search Engine for CSI4107
+Vanilla Search Engine for CSI4107 by Group #1
+Jess Gilchrist
+Beatrice Johnston
 
 ## Set-up
 
-Delete the files save_files/corpus.csv, save_files/description_dic.obj, save_files/title_dic.ob,
-save_files/description_index.obj, save_files/title_index.obj, save_files/description_secondary_index.obj, save_files/title_secondary_index.obj if they exist
+To generate all of the required prerequisite files, run 
 
-Then to regenerate them:
 ```
 python main.py
 ``` 
 
-To see the actual code used to generate them, see pre_processing.py, dictionary_builder.py, and index_builder.py 
+To see the actual code used to generate them, see pre_processing.py, dictionary_builder.py, index_builder.py, generate_td_idf.py, and create_weighted_ed_df.py
+
 
 ## To Run
-
 Install pandas, pickle, math, os, re, similarity, nltk, tkinter and numpy libraries. 
 
 Or alternatively, run 
 ```
 conda env create -f environment.yml
 conda activate 4107-VSE
+```
+
+Then run
+```
 python view.py
 ```
 

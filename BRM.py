@@ -32,38 +32,37 @@ class BRM:
             query = query.replace(")", " ) ")
         
         lst = query.split()
-        
         return self.loop(lst) #inherently won't have duplicates
 
     def lookup(self, string):
         '''
         Returns the ids that match the given string. Handles both strings with wildcards and regular strings, first tokenizing then using the index get the ids
         '''
+        
         #Formatting
         terms = []
         if "*" in string:
             bigrams = get_bigrams(string)
+            #print(bigrams)
             for bigram in bigrams:
 
                 try: #just in case it isn't there
+                    #print(bigram, "IND", self.secondary_index[bigram])
                     terms += self.secondary_index[bigram]
                 except:
                     continue
-            x = pd.Series(terms).value_counts()#.index.tolist() #sorts by frequency
-            y = pd.Series(terms).value_counts().index#.tolist() #sorts by frequency
-            t = []
-            for i in range(len(x)):
-                if x[i] >= len(bigrams):
-                    t.append(y[i])
-            terms = t[:10]
+            terms = [t for t in terms if len(t) > 2]
+            x = pd.Series(terms).value_counts().tolist() #sorts by frequency
+            y = pd.Series(terms).value_counts().index.tolist() #sorts by frequency
+
+            ind = len(x) - x[::-1].index(x[0])
             
-        
+            terms = y[:ind]
         else:
             terms = [string]
         #ID retrievals
         ids = []
-
-
+        
         for term in terms:
             try:
                 formatted = get_formatted_tokens(term)[0]
@@ -78,6 +77,7 @@ class BRM:
         Ultimately returns a list of unique, relevant document ids
         '''
         if len(lst) == 1:
+            print("R")
             return self.lookup(lst[0])
             #get values
         else:

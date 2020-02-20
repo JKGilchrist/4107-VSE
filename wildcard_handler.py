@@ -4,6 +4,8 @@ def get_bigrams(string):
     Returns a list of bigrams from the given string
     '''
     lst = []
+    if len(string) == 1:
+        return lst
 
     i = 0
     while i < len(string) - 1:
