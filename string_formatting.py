@@ -84,3 +84,8 @@ def get_formatted_tokens(string):
         tokens = stemmer(tokens)
         
     return tokens
+
+
+if __name__ == "__main__":
+    print(get_formatted_tokens("international e-business strategies"))
+    print(get_formatted_tokens("computer"))

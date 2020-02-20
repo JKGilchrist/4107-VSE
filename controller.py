@@ -43,6 +43,7 @@ def boolean_controller(query, corpus):
     title_brm = BRM("save_files/title_index.obj", "save_files/title_secondary_index.obj")
     desc_ids = desc_brm.run_model(query)
     title_ids = title_brm.run_model(query)
+    
     both_ids = []
     ids = []
     if desc_ids != [] and title_ids != []:

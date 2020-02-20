@@ -17,5 +17,4 @@ def get_bigrams(string):
 
         if i == len(string) - 1 and string[i] != "*":
             lst.append(string[len(string) - 1] + "$")
-
     return lst

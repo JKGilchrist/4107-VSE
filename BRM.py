@@ -4,6 +4,7 @@ from wildcard_handler import get_bigrams
 from string_formatting import get_formatted_tokens
 
 import pickle
+import pandas as pd
 
 class BRM:
     '''
@@ -43,21 +44,32 @@ class BRM:
         if "*" in string:
             bigrams = get_bigrams(string)
             for bigram in bigrams:
+
                 try: #just in case it isn't there
                     terms += self.secondary_index[bigram]
                 except:
                     continue
+            x = pd.Series(terms).value_counts()#.index.tolist() #sorts by frequency
+            y = pd.Series(terms).value_counts().index#.tolist() #sorts by frequency
+            t = []
+            for i in range(len(x)):
+                if x[i] >= len(bigrams):
+                    t.append(y[i])
+            terms = t[:10]
+            
+        
         else:
             terms = [string]
         #ID retrievals
         ids = []
+
+
         for term in terms:
             try:
                 formatted = get_formatted_tokens(term)[0]
                 ids += self.primary_index[formatted]
             except:
                 continue
-
         return ids
         
     def loop(self, lst):
