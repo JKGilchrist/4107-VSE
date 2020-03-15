@@ -1,5 +1,10 @@
 #Module 2
 
+
+#All unique reuters tages
+#{'acq', 'zinc', 'dlr', 'peseta', 'cotton-oil', 'money-fx', 'heat', 'linseed', 'nat-gas', 'cpi', 'f-cattle', 'reserves', 'barley', 'naphtha', 'hog', 'lin-oil', 'corn-oil', 'housing', 'grain', 'gold', 'bop', 'coconut-oil', 'lei', 'sorghum', 'yen', 'groundnut', 'corn', 'oilseed', 'austdlr', 'income', 'sunseed', 'jobs', 'copper', 'palm-oil', 'gas', 'dmk', 'lin-meal', 'cornglutenfeed', 'potato', 'groundnut-oil', 'strategic-metal', 'wpi', 'rand', 'money-supply', 'l-cattle', 'coffee', 'cpu', 'hk', 'castor-oil', 'jet', 'ship', 'fishmeal', 'platinum', 'soybean', 'instal-debt', 'veg-oil', 'livestock', 'lead', 'soy-oil', 'can', 'rye', 'ipi', 'palmkernel', 'retail', 'tea', 'lumber', 'soy-meal', 'pork-belly', 'iron-steel', 'gnp', 'tin', 'dfl', 'alum', 'rice', 'sun-oil', 'stg', 'sfr', 'nzdlr', 'interest', 'inventories', 'plywood', 'sugar', 'nickel', 'crude', 'sun-meal', 'rapeseed', 'earn', 'carcass', 'rubber', 'silver', 'rape-oil', 'cruzado', 'meal-feed', 'wheat', 'orange', 'wool', 'cotton', 'fuel', 'oat', 'palladium', 'propane', 'trade', 'pet-chem', 'cocoa'}
+
+
 # Convert a collection of documents into a formatted corpus
 # The most important function externally is main()
 
@@ -8,7 +13,9 @@ import sys
 import pandas as pd
 import re 
 
-def read_and_munge_file(path):
+
+#Uottawa bits
+def munge_UO(path):
     '''
     Returns list of titles, descriptions from given file. Highly personalized, so not very re-usable.
     '''
@@ -85,38 +92,124 @@ def remove_link(str1):
     str2 = re.sub("</a>", "", str2)
     return str2
 
-def create_columns():
+
+def create_UO_corpus(name):
     '''
-    In anticipation of later expansion and more files, uses the directory to access all the raw files that should be converted into a corpus. 
+    Creates the dataframe and saves it as a csv, using the given name as the file name
     '''
-    path = "raw_files/"
-    files = os.listdir(path)
+
+    path = "raw_files/UofO_Courses.html"
     
     titles = []
     descriptions = []
 
-    for a_file in files: #In case it becomes a series of files later.
-        titles, descriptions = read_and_munge_file(path + a_file)
-
+    titles, descriptions = munge_UO(path)
+        
     ids = list(range(0, len(titles)))
-    return ids, titles, descriptions
-
-def create_csv_corpus(name):
-    '''
-    Creates the dataframe and saves it as a csv, using the given name as the file name
-    '''
-    ids, titles, descriptions = create_columns()
 
     df = pd.DataFrame(list(zip(ids, titles, descriptions)), columns = ["id", "title", "description"])
 
     df.to_csv(name, sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
 
 
+
+#reuters bits
+def munge_Reuters(path):
+    ids = []
+    titles = []
+    descriptions = []
+    topics = []
+    id_start = 0
+    with open(path, 'r') as f: 
+        line = f.readline()
+
+        while line:
+            all_text = line
+
+            if line.startswith("<REUT"):
+                id = id_start
+                id_start += 1
+
+                title = "No title found"
+                description = "No description found"
+                topic = []
+                while not line.startswith("</REUT"):
+                    
+                    if "<TOPICS" in line:
+                        line = line.replace("<TOPICS>", "")
+                        line = line.replace("</TOPICS>", "")
+                        line = line.replace("<D>", "")
+                        
+                        topic = line.split("</D>")[:-1]
+
+                    if "<TITLE" in line:
+                        line = re.sub(r'\**<TITLE>', "", line)
+                        #line = line.replace("<TITLE>", "")
+                        line = line.replace("</TITLE>", "")    
+                
+                        line = line.replace("&lt;", "<")
+                        line = line.strip()
+                        if len(line) < 5:
+                            print(line)
+                        title = line
+
+                    if "<DATELINE" in line:
+                        
+                        text = ""
+                        while line.strip().lower() != "reuter":
+                            text += (line)
+                            line = f.readline()
+                            all_text += line
+
+                        text = text.replace("<DATELINE>", "")
+                        text = text.replace("</DATELINE>", "\n")
+                        text = text.replace("<BODY>", "")
+                        text = text.replace("&lt;", "<")
+                        text = text.strip()
+                        text = text.replace("\n", " ")
+                        text = text.replace("    ", "\\n")
+                        text = text.replace('"', "'")
+                        description = text
+                    
+                    line = f.readline()
+                    all_text += line
+                
+                if id == 8602:
+                    print(all_text)
+                    print (title, description, topic)
+
+                titles.append(title)
+                descriptions.append(description)
+                topics.append(topic)
+                ids.append(id)
+
+            line = f.readline()
+
+    return titles, descriptions, topics
+
+
+def create_Reuters_corpus(name):
+    '''
+    Creates the dataframe and saves it as a csv, using the given name as the file name
+    '''
+    path = "raw_files/reuters21578.tar"
+    
+    titles, descriptions, topics = munge_Reuters(path)
+    
+    ids = list(range(0, len(titles)))
+
+    df = pd.DataFrame(list(zip(ids, titles, descriptions, topics)), columns = ["id", "title", "description", "topics"])
+    print(df.head())
+    df.to_csv(name, sep = "|", index = False) #Uses | as separator as it's a character not contained within the corpus itself.
+
+
+
 def main():
     '''
     The main function, that runs its all
     '''
-    create_csv_corpus("save_files/corpus.csv")
+    #create_UO_corpus("save_files/UO/corpus.csv")
+    create_Reuters_corpus("save_files/Reuters/corpus.csv")
 
 if __name__ == "__main__":
     main()

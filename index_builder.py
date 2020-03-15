@@ -20,19 +20,28 @@ class index:
 
         with open(dic_path, 'rb') as f:
             self.dic_list = pickle.load(f) #set of tokenized terms
-        
+        tmp = []
+        for x in self.dic_list:
+            tmp.append(x)
+        tmp.sort()
+        print(tmp)
     def build_primary_index(self, df, name):
         '''
         Generates a primary index from the given dataframe and column name
         '''
+        print("G")
         
+
         for x in self.dic_list:
             self.index[x] = set() #generates the dict entry and its empty set
 
         for _, row in df.iterrows():
+            print(row[name])
             tokens = string_formatting.get_formatted_tokens(row[name])
-            
+            print(tokens)
             for token in tokens:
+                print("E")
+                print(token)
                 self.index[str(token)].add((row["id"])) #adds to dict sets
 
     def build_secondary_index(self):
@@ -51,28 +60,30 @@ class index:
         '''
         Saves the index, with the file name being the given name
         '''
-        with open("save_files/{}.obj".format(name), "wb"  ) as f:
+        with open("save_files/UO/{}.obj".format(name), "wb"  ) as f:
             pickle.dump(self.index, f )
 
 def main():
     '''
     The main function, performing all the set-up required
     '''
-    df = pd.read_csv("save_files/corpus.csv", sep = "|")
+    df = pd.read_csv("save_files/UO/corpus.csv", sep = "|")
 
-    title_index = index("save_files/title_dic.obj")
+    title_index = index("save_files/UO/title_dic.obj")
+    print("A")
     title_index.build_primary_index(df, "title")
+    print("B")
     title_index.save("title_index")
 
-    description_index =  index("save_files/description_dic.obj")
+    description_index =  index("save_files/UO/description_dic.obj")
     description_index.build_primary_index(df, "description")
     description_index.save("description_index")
 
-    title_sec = index("save_files/title_dic.obj")
+    title_sec = index("save_files/UO/title_dic.obj")
     title_sec.build_secondary_index()
     title_sec.save("title_secondary_index")
 
-    desc_sec = index("save_files/description_dic.obj")
+    desc_sec = index("save_files/UO/description_dic.obj")
     desc_sec.build_secondary_index()
     desc_sec.save("description_secondary_index")
 

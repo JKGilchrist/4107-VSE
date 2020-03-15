@@ -55,7 +55,7 @@ def vsm(collection, query, title, desc):
 
 
 if __name__ == "__main__":
-    desc = pd.read_pickle("save_files/description_index_with_weight.obj")
-    title = pd.read_pickle("save_files/title_index_with_weight.obj")
+    desc = pd.read_pickle("save_files/UO/description_index_with_weight.obj")
+    title = pd.read_pickle("save_files/UO/title_index_with_weight.obj")
     query = ['operting', 'system']
     print(vsm("UofO", query, title, desc))

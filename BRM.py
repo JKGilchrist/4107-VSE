@@ -119,7 +119,7 @@ class BRM:
 
 
 def test_BRM():
-    test = BRM("save_files/description_index.obj", "save_files/description_secondary_index.obj")
+    test = BRM("save_files/UO/description_index.obj", "save_files/UO/description_secondary_index.obj")
     print (test.run_model("competition"))
 
     print("\n\n")

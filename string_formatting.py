@@ -62,8 +62,36 @@ def get_formatted_tokens(string):
     string = string.replace("é", "e")
     string = string.replace("ï", "i")
 
+
     if remove_units: #very useless for searching on
         string = re.sub(r" \(.+ unit.?\)", "", string)
+
+    #Efforts to remove unimportant <> stuff from 
+    #string = re.sub("<(\w|\.|)+(>|<|\))", "", string) #remove <MER> from Reuters stuff. Broken ones, like (MER> are left
+    
+    if False:
+        while "<" in string:
+            start = string.find("<")
+            end = string.find(">")
+            
+            #print("\n\n!!!!", string, start, end)
+            if end == -1:
+                end = string.find("<")
+                if end == -1:
+                    end = string.find(")")
+            
+            if end == -1: #Weird cases
+                print(string)
+            
+            if " " in string[start:end] or len(re.findall("-", string)) > 1 :
+                #print(string)
+                string = string[0:start] + " "+ string[start+1 : end] + " " + string[end + 1:]
+            else:
+                #print(string)
+                string = string[:start] + " " + string[end + 1:] 
+                #print(string)
+
+    #end of efforts
 
     if fully_normalize: #Except for C++ we want to keep that
         if "C++" in string:
@@ -74,8 +102,8 @@ def get_formatted_tokens(string):
     elif normalize:
         string = string.replace("-", " ")     
         string = string.replace(".", "")
-    
     tokens = string.split()
+
     if remove_stopwords:
         tokens = rm_stopwords(tokens)
     if fully_lower:
@@ -87,5 +115,5 @@ def get_formatted_tokens(string):
 
 
 if __name__ == "__main__":
-    print(get_formatted_tokens("international e-business strategies"))
-    print(get_formatted_tokens("computer"))
+    print(get_formatted_tokens("ADM 2342 Intermediate Accounting I"))
+    print(get_formatted_tokens("I II iii"))

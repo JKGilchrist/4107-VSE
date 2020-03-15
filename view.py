@@ -4,6 +4,7 @@ import math
 from controller import boolean_controller, vector_controller, spelling_correction
 
 class ListItem(tk.Frame):
+
     def __init__(self, master, id, title, description, x, y, score):
         tk.Frame.__init__(self, master, bg='white', relief='ridge', bd=2)
 
@@ -59,17 +60,21 @@ class ListItem(tk.Frame):
         # Possibly not needed, used to focus parent window again
         self.master.deiconify()
 
+
+
+
+
 class GUI(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.initialize_user_interface()
+        self.display_user_interface()
         self.tmp_elems = []
         self.query = []
         self.model = 1
         self.corpus = 1
 
-    def initialize_user_interface(self):
+    def display_user_interface(self):
         self.parent.geometry("1000x1000")
         self.parent.title("Spring Search Engine")
 

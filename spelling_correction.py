@@ -59,6 +59,6 @@ def weighted_edit_distance(x, y):
     return weighted_levenshtein.distance(x, y)
 
 if __name__ == "__main__":
-    df = pd.read_pickle("save_files/weighted_ed_df.pkl")
+    df = pd.read_pickle("save_files/UO/weighted_ed_df.pkl")
     df['ed'] = df.apply(lambda x: weighted_edit_distance('3242', x['word']), axis=1)
     df.nsmallest(5, 'ed')

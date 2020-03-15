@@ -5,13 +5,13 @@ import numpy as np
 from string_formatting import get_formatted_tokens
 
 def generate_td_idf():
-    infile = open("save_files/description_index.obj", "rb")
+    infile = open("save_files/UO/description_index.obj", "rb")
     desc = pickle.load(infile)
     infile.close()
-    infile = open("save_files/title_index.obj", "rb")
+    infile = open("save_files/UO/title_index.obj", "rb")
     title = pickle.load(infile)
     infile.close()
-    corpus = pd.read_csv("save_files/corpus.csv", sep="|")
+    corpus = pd.read_csv("save_files/UO/corpus.csv", sep="|")
 
     corpus['title'] = corpus['title'].apply(lambda x: get_formatted_tokens(x))
     corpus['description'] = corpus['description'].apply(lambda x: get_formatted_tokens(x))
@@ -83,5 +83,5 @@ def generate_td_idf():
         new.update({k: v})
     desc = new
 
-    pickle.dump(title, open("save_files/title_index_with_weight.obj", "wb"))
-    pickle.dump(desc, open("save_files/description_index_with_weight.obj", "wb"))
+    pickle.dump(title, open("save_files/UO/title_index_with_weight.obj", "wb"))
+    pickle.dump(desc, open("save_files/UO/description_index_with_weight.obj", "wb"))
