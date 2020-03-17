@@ -1,2 +1,4 @@
 __pycache__
-raw_files/notes.txt
+
+*.obj
+*.csv

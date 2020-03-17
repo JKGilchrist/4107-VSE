@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
-from spelling_correction import weighted_edit_distance
-from BRM import BRM
-from vsm import vsm
+from models.spelling_correction import weighted_edit_distance
+from models.BRM import BRM
+from models.vsm import vsm
 from string_formatting import get_formatted_tokens
+
 
 def spelling_correction(query, corpus):
     '''
@@ -41,7 +42,7 @@ def boolean_controller(query, corpus):
     '''
     title_brm = BRM("save_files/UO/title_index.obj", "save_files/UO/title_secondary_index.obj")
     title_ids = title_brm.run_model(query)
-    desc_brm = BRM("save_files/UO/description_index.obj", "save_files/UO/description_secondary_index.obj")
+    desc_brm = BRM("save_files/UO/descriptions_index.obj", "save_files/UO/description_secondary_index.obj")
     desc_ids = desc_brm.run_model(query)
     
     both_ids = []
@@ -67,7 +68,7 @@ def vector_controller(query, corpus):
     Returns a DataFrame containing the results of the VSM for the given query on the given corpus
     '''
     query.lower()
-    desc = pd.read_pickle("save_files/UO/description_index_with_weight.obj")
+    desc = pd.read_pickle("save_files/UO/descriptions_index_with_weight.obj")
     title = pd.read_pickle("save_files/UO/title_index_with_weight.obj")
     repr = vsm(corpus, get_formatted_tokens(query), title, desc)
     corpus = pd.read_csv("save_files/UO/corpus.csv", sep="|")

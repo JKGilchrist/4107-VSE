@@ -1,7 +1,11 @@
 import tkinter as tk
 import pandas as pd
 import math
+
+import preprocessing_scripts
+
 from controller import boolean_controller, vector_controller, spelling_correction
+
 
 class ListItem(tk.Frame):
 
@@ -219,6 +223,8 @@ class GUI(tk.Frame):
 
 
 if __name__ == "__main__":
+    print("Checking if all required files are generated.")
+    preprocessing_scripts.run_preprocessing()
     root = tk.Tk()
     run = GUI(root)
     root.mainloop()
