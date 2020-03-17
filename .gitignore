@@ -1,5 +1,4 @@
 __pycache__
 
-
 raw_files/*
-save_files/*/
+save_files/*/*.obj
