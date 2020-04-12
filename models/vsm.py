@@ -2,7 +2,7 @@ import pandas as pd
 from scipy.spatial.distance import cosine
 import numpy as np
 
-def vsm(collection, query, title, desc):
+def vsm(collection, query, title, desc, expanded_values):
     '''
     Returns a list of the ids of the 10 most similar documents using the vsm model
     '''
@@ -55,7 +55,7 @@ def vsm(collection, query, title, desc):
 
 
 if __name__ == "__main__":
-    desc = pd.read_pickle("save_files/UO/descriptions_index_with_weight.obj")
-    title = pd.read_pickle("save_files/UO/title_index_with_weight.obj")
+    desc = pd.read_pickle("../save_files/UO/descriptions_index_with_weight.obj")
+    title = pd.read_pickle("../save_files/UO/title_index_with_weight.obj")
     query = ['operting', 'system']
-    print(vsm("UofO", query, title, desc))
+    print(vsm("UofO", query, title, desc, {'operating': 1, 'system': 1}))

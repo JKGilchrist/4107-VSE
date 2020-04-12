@@ -1,5 +1,6 @@
 import tkinter as tk
 import pandas as pd
+import numpy as np
 import math
 
 import preprocessing_scripts
@@ -9,7 +10,7 @@ from controller import boolean_controller, vector_controller, spelling_correctio
 
 class ListItem(tk.Frame):
 
-    def __init__(self, master, id, title, description, x, y, score):
+    def __init__(self, master, id, title, description, x, y, score, query, doc_ids):
         tk.Frame.__init__(self, master, bg='white', relief='ridge', bd=2)
 
         self.button = tk.Button(self.master,
@@ -30,8 +31,38 @@ class ListItem(tk.Frame):
                  text=txt,
                  wraplength = 500,
                  justify= tk.LEFT)
-        self.label.place(x=x + 20, y=y+30)
-    
+        self.label.place(x=x+20, y=y+30)
+
+        # Revelant radio buttons
+        self.y = tk.IntVar(value=0)
+        self.model = self.y
+        dictionary = np.load('relevant_dict.npy', allow_pickle='TRUE').item()
+        tk.Radiobutton(root,
+                       text="Relevant",
+                       variable=self.y,
+                       value=1,
+                       command=lambda: self.save_relevance(self.y.get(), doc_ids, query, dictionary)).place(x=x+20, y=y+60)
+        tk.Radiobutton(root,
+                       text="Not relevant",
+                       variable=self.y,
+                       value=2,
+                       command=lambda: self.save_relevance(self.y.get(), doc_ids, query, dictionary)).place(x=x+100, y=y+60)
+
+    def save_relevance(self, y, ids, query, dictionary):
+        if query in dictionary:
+            if y == 1: # relevant
+                dictionary[query][0] = dictionary[query][0] + ids
+                dictionary[query][0] = list(set(dictionary[query][0]))
+            else: #not relevant
+                dictionary[query][1] = dictionary[query][1] + ids
+                dictionary[query][1] = list(set(dictionary[query][1]))
+        else:
+            if y==1: #relevant
+                dictionary[query] = [ids, []]
+            else: #not relevant
+                dictionary[query] = [[], ids]
+        np.save('relevant_dict.npy', dictionary)
+
     def destroy(self):
         self.button.destroy()
         self.label.destroy()
@@ -176,8 +207,10 @@ class GUI(tk.Frame):
                  row["title"],
                  row["description"],
                  280,
-                 150 + 70 * (ind - 1), 
-                 score) 
+                 150 + 80 * (ind - 1),
+                 score,
+                 self.query,
+                 list(df.index.values))
             ind += 1
             self.tmp_elems.append(x)
 
@@ -187,7 +220,7 @@ class GUI(tk.Frame):
         self.tmp_elems.append(x)
 
     def search(self, query, model, corpus, spell_correct = 1):
-        print(query)
+        self.query = query
 
         for elem in self.tmp_elems:
             elem.destroy()

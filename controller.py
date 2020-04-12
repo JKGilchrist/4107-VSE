@@ -4,6 +4,7 @@ from models.spelling_correction import weighted_edit_distance
 from models.BRM import BRM
 from models.vsm import vsm
 from string_formatting import get_formatted_tokens
+from models.query_expansion import expand_query
 
 
 def spelling_correction(query, corpus):
@@ -16,7 +17,7 @@ def spelling_correction(query, corpus):
     flag = False
     for i in range(len(query)):
         query[i] = query[i].lower()
-        df = pd.read_csv("UO_save_files/UO/word_lists/" + query[i][0] + "word.csv", quoting=3, error_bad_lines=False, sep = "|")
+        df = pd.read_csv("save_files/word_lists/" + query[i][0].upper() + "word.csv", quoting=3, error_bad_lines=False, sep = "|")
         if not df['word'].str.contains(query[i]).any():
             flag = True
             df['ed'] = df.apply(lambda x: weighted_edit_distance(query[i], str(x['word']).strip()), axis=1)
@@ -40,6 +41,7 @@ def boolean_controller(query, corpus):
     '''
     Returns a DataFrame containing the results of the BRM for the given query on the given corpus
     '''
+    query = expand_query(query, "boolean")
     title_brm = BRM("save_files/UO/title_index.obj", "save_files/UO/title_secondary_index.obj")
     title_ids = title_brm.run_model(query)
     desc_brm = BRM("save_files/UO/descriptions_index.obj", "save_files/UO/description_secondary_index.obj")
@@ -68,10 +70,14 @@ def vector_controller(query, corpus):
     Returns a DataFrame containing the results of the VSM for the given query on the given corpus
     '''
     query.lower()
+    query, expanded_values = expand_query(query, 'vsm')
     desc = pd.read_pickle("save_files/UO/descriptions_index_with_weight.obj")
     title = pd.read_pickle("save_files/UO/title_index_with_weight.obj")
-    repr = vsm(corpus, get_formatted_tokens(query), title, desc)
+    repr = vsm(corpus, get_formatted_tokens(query), title, desc, expanded_values)
     corpus = pd.read_csv("save_files/UO/corpus.csv", sep="|")
     result = corpus.loc[ repr[0] , ["title", "description"]]
     result['score'] = repr[1]
     return result
+
+if __name__ == "__main__":
+    print(boolean_controller('(operating OR test) AND (system OR quality)', 'UOttawa'))
