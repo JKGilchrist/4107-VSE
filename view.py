@@ -225,8 +225,6 @@ class GUI(tk.Frame):
 
     def search(self, query, model, corpus, spell_correct = 1):
         self.query = query
-        print("1" + query)
-        print("1.5" + self.query)
 
         for elem in self.tmp_elems:
             elem.destroy()

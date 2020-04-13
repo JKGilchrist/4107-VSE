@@ -5,7 +5,8 @@ from models.BRM import BRM
 from models.vsm import vsm
 from string_formatting import get_formatted_tokens
 from models.query_expansion import expand_query
-
+from models.rocchio_model import rocchio
+from collections import Counter
 
 def spelling_correction(query, corpus):
     '''
@@ -70,14 +71,21 @@ def vector_controller(query, corpus):
     Returns a DataFrame containing the results of the VSM for the given query on the given corpus
     '''
     query.lower()
+    rel_dict = np.load('relevant_dict.npy', allow_pickle='TRUE').item()
+    newdict = np.load('models/complete_dict.npy', allow_pickle='TRUE').item()
+    r_query = rocchio(['oper', 'system'], ['operating', 'system'], rel_dict, newdict)
     query, expanded_values = expand_query(query, 'vsm')
+    r_query = Counter(r_query)
+    expanded_values = Counter(expanded_values)
+    final_expanded = dict(r_query + expanded_values)
     desc = pd.read_pickle("save_files/UO/descriptions_index_with_weight.obj")
     title = pd.read_pickle("save_files/UO/title_index_with_weight.obj")
-    repr = vsm(corpus, get_formatted_tokens(query), title, desc, expanded_values)
+    repr = vsm(corpus, get_formatted_tokens(query), title, desc, final_expanded)
     corpus = pd.read_csv("save_files/UO/corpus.csv", sep="|")
     result = corpus.loc[ repr[0] , ["title", "description"]]
     result['score'] = repr[1]
     return result
 
 if __name__ == "__main__":
-    print(boolean_controller('(operating OR test) AND (system OR quality)', 'UOttawa'))
+    print(vector_controller('operating system', 'UOttawa'))
+    # print(boolean_controller('(operating OR test) AND (system OR quality)', 'UOttawa'))
