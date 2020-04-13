@@ -72,17 +72,25 @@ def vector_controller(query, corpus):
     '''
     query.lower()
     rel_dict = np.load('relevant_dict.npy', allow_pickle='TRUE').item()
-    newdict = np.load('models/complete_dict.npy', allow_pickle='TRUE').item()
+    if corpus == 1:
+        newdict = np.load('models/complete_dict.npy', allow_pickle='TRUE').item()
+        desc = pd.read_pickle("save_files/UO/descriptions_index_with_weight.obj")
+        title = pd.read_pickle("save_files/UO/title_index_with_weight.obj")
+    else:
+        newdict = np.load('models/complete_dict_reuters.npy', allow_pickle='TRUE').item()
+        desc = pd.read_pickle("save_files/Reuters/descriptions_index_with_weight.obj")
+        title = pd.read_pickle("save_files/Reuters/title_index_with_weight.obj")
     r_query = rocchio(['oper', 'system'], ['operating', 'system'], rel_dict, newdict)
     query, expanded_values = expand_query(query, 'vsm')
     r_query = Counter(r_query)
     expanded_values = Counter(expanded_values)
     final_expanded = dict(r_query + expanded_values)
-    desc = pd.read_pickle("save_files/UO/descriptions_index_with_weight.obj")
-    title = pd.read_pickle("save_files/UO/title_index_with_weight.obj")
     repr = vsm(corpus, get_formatted_tokens(query), title, desc, final_expanded)
-    corpus = pd.read_csv("save_files/UO/corpus.csv", sep="|")
-    result = corpus.loc[ repr[0] , ["title", "description"]]
+    if corpus == 1:
+        corp = pd.read_csv("save_files/UO/corpus.csv", sep="|")
+    else:
+        corp = pd.read_csv("save_files/Reuters/corpus.csv", sep="|")
+    result = corp.loc[ repr[0] , ["title", "description"]]
     result['score'] = repr[1]
     return result
 
