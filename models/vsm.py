@@ -1,7 +1,6 @@
 import pandas as pd
 from scipy.spatial.distance import cosine
 import numpy as np
-from string_formatting import get_formatted_tokens
 
 def vsm(collection, query, title, desc, expanded_values):
     print(collection)
@@ -17,8 +16,7 @@ def vsm(collection, query, title, desc, expanded_values):
             values.append(0)
         values[query_no_duplicates.index(query[i])] = values[query_no_duplicates.index(query[i])] + 1
     for i in range(len(query_no_duplicates)):
-        expanded_values[query_no_duplicates[i]] = get_formatted_tokens(query_no_duplicates[i])
-        del expanded_values[query_no_duplicates[i]]
+        values[i] = values[i] + expanded_values[query_no_duplicates[i]]
     query_df = pd.DataFrame([values], columns=query_no_duplicates)
     print(query_df)
     # create title df

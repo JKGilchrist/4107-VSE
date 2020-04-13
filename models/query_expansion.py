@@ -1,5 +1,6 @@
 import nltk
 from nltk.corpus import wordnet
+from string_formatting import get_formatted_tokens
 
 def expand_query(query, model):
     if model == "boolean":
@@ -49,7 +50,7 @@ def expand_query(query, model):
             if weight == 1:
                 weight = 0.8
             for j in range(len(new_syn)):
-                values[new_syn[j]] = weight
+                values["".join(get_formatted_tokens(new_syn[j]))] = weight
                 lst.append(new_syn[j])
             new_syn = []
             synonyms = []
@@ -63,4 +64,4 @@ def create_term(syn_lst, str):
     return create_term(syn_lst[1:], "(" + syn_lst[0] + " OR " + str + ")")
 
 if __name__ == "__main__":
-    print(expand_query("dog science", "vsm"))
+    print(expand_query("operating science", "vsm"))
