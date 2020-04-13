@@ -6,6 +6,7 @@ from string_formatting import get_formatted_tokens
 import pickle
 import pandas as pd
 
+#TODO don't limit results
 
 '''
 Was expecting the linear time Posting Merge Sort algorithms for 'AND', 'OR', and 'AND_NOT'. Specifically, marks are docked for using for ... in ... loops which are less efficient

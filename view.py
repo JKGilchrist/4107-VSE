@@ -4,7 +4,6 @@ import numpy as np
 import math
 
 import preprocessing_scripts
-
 from controller import boolean_controller, vector_controller, spelling_correction
 
 class ListItem(tk.Frame):
@@ -12,12 +11,11 @@ class ListItem(tk.Frame):
     def __init__(self, master, id, title, description, x, y, score, query, doc_id):
         tk.Frame.__init__(self, master, bg='white', relief='ridge', bd=2)
 
-        self.button = tk.Button(self.master,
+        self.button = tk.Button(self.master, 
                  text=str(id) + ": " + title,
-                 justify=tk.LEFT,
-                 padx=20,
-                 command= lambda: self.Create_Toplevel(id, title, description))
-        self.button.place(x=x, y=y)
+                 justify = tk.LEFT, padx = 20,
+                 command= lambda: self.expanded_window(id, title, description))
+        self.button.place(x = x, y = y)
         if str(description) == 'nan':
             description = "No description provided."
         if len(description) <= 140:
@@ -26,25 +24,26 @@ class ListItem(tk.Frame):
            txt = description[:140].strip() + "..."
         if score != -1:
             txt = txt + " (" + str(score) + ")"
-        self.label = tk.Label(self.master,
-                 text=txt,
-                 wraplength = 500,
-                 justify= tk.LEFT)
-        self.label.place(x=x+20, y=y+30)
+        self.label = tk.Label(self.master, text = txt, wraplength = 500, justify= tk.LEFT)
+        self.label.place(x = x + 20, y = y + 30)
 
         # Revelant radio buttons
-        self.y = tk.IntVar(value=0)
-        self.model = self.y
-        tk.Radiobutton(root,
+        
+        self.model = tk.IntVar(value=0)
+        self.button1 = tk.Radiobutton(root,
                        text="Relevant",
-                       variable=self.y,
+                       variable=self.model,
                        value=1,
-                       command=lambda: self.save_relevance(self.y.get(), doc_id, query)).place(x=x+20, y=y+60)
-        tk.Radiobutton(root,
+                       command=lambda: self.save_relevance(self.model.get(), doc_id, query))
+        self.button1.place(x=x+20, y=y+60)
+        self.button2 = tk.Radiobutton(root,
                        text="Not relevant",
-                       variable=self.y,
+                       variable=self.model,
                        value=2,
-                       command=lambda: self.save_relevance(self.y.get(), doc_id, query)).place(x=x+100, y=y+60)
+                       command=lambda: self.save_relevance(self.model.get(), doc_id, query))
+        self.button2.place(x=x+100, y=y+60)
+        
+
 
     def save_relevance(self, y, id, query):
         try:
@@ -69,127 +68,97 @@ class ListItem(tk.Frame):
     def destroy(self):
         self.button.destroy()
         self.label.destroy()
+        self.button1.destroy()
+        self.button2.destroy()
 
     # modified from https://stackoverflow.com/questions/16803686/how-to-create-a-modal-dialog-in-tkinter
-    def Create_Toplevel(self, id, title, description):
+    def expanded_window(self, id, title, description):
 
         # THE CLUE
         self.master.wm_attributes("-disabled", True)
 
         # Creating the toplevel dialog
         self.toplevel_dialog = tk.Toplevel(self)
-        self.toplevel_dialog.minsize(300, 100)
+        self.toplevel_dialog.minsize(500, 100)
         self.toplevel_dialog.transient(self)
-        self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.Close_Toplevel)
+        self.toplevel_dialog.protocol("WM_DELETE_WINDOW", self.close_expanded_window)
         self.toplevel_dialog_label = tk.Label(self.toplevel_dialog, text=str(id) + ": " + title)
         self.toplevel_dialog_label.pack(side='top')
         self.toplevel_dialog_label = tk.Label(self.toplevel_dialog, text=description, wraplength = 300)
         self.toplevel_dialog_label.pack(side='top')
-        self.toplevel_dialog_yes_button = tk.Button(self.toplevel_dialog, text='Close', command=self.Close_Toplevel)
+        self.toplevel_dialog_yes_button = tk.Button(self.toplevel_dialog, text='Close', command=self.close_expanded_window)
         self.toplevel_dialog_yes_button.pack(side='left', fill='x', expand=True)
 
-    def Close_Toplevel(self):
-
+    def close_expanded_window(self):
         # IMPORTANT!
         self.master.wm_attributes("-disabled", False) # IMPORTANT!
-
         self.toplevel_dialog.destroy()
 
         # Possibly not needed, used to focus parent window again
         self.master.deiconify()
 
 
-
-
-
 class GUI(tk.Frame):
+
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
         self.parent = parent
-        self.display_user_interface()
+        
+        #The useful variables
         self.tmp_elems = []
         self.query = []
-        self.model = 1
-        self.corpus = 1
+        self.txt = ""
+        self.set_up_ui()
+        #as well as self.model, self.corpus
 
-    def display_user_interface(self):
+    def set_up_ui(self):
         self.parent.geometry("1000x1000")
         self.parent.title("Spring Search Engine")
 
-        # Title
-        tk.Label(self.parent,
-                 text="Spring",
-                 justify=tk.LEFT,
-                 padx=20,
-                 font=("Courier", 44)).place(x=5, y=5)
-
-        # Search bar
-        self.entry = tk.Entry(self.parent,
-                              width=100)
-        self.entry.place(x=300, y=40)
+        tk.Label(self.parent, text = "Spring", justify=tk.LEFT, padx=20, font=("Courier", 44)).place(x=5, y=5)
+        
+        self.entry = tk.Entry(self.parent, width = 99, textvariable = tk.StringVar())
+        self.entry.bind('<space>', (lambda _: self.completion()) )
+        self.entry.bind('<Return>', (lambda _: self.search(self.entry.get(), self.model.get(), self.corpus.get())  ) )
+        self.entry.place(x = 300, y = 43)
 
         # search button
-        tk.Button(self.parent,
-                  text="Search",
-                  padx=20,
-                  command=lambda: self.search(self.entry.get(), self.v.get(), self.w.get())) \
-            .place(x=900, y=40)
+        tk.Button(self.parent, text="Search", padx = 20, command = lambda: self.search(self.entry.get(), self.model.get(), self.corpus.get())).place(x=900, y=40)
 
         # Model radio buttons
-        self.v = tk.IntVar(value=1)
-        self.model = self.v
-        tk.Label(self.parent,
-                 text="Model: ",
-                 justify=tk.LEFT,
-                 padx=20).place(x=280, y=100)
-        tk.Radiobutton(root,
-                       text="Boolean",
-                       padx=20,
-                       variable=self.v,
-                       value=1).place(x=350, y=100)
-        tk.Radiobutton(root,
-                       text="Vector Space",
-                       padx=20,
-                       variable=self.v,
-                       value=2).place(x=480, y=100)
+        self.model = tk.IntVar(value = 1)
+        tk.Label(self.parent, text = "Model: ", justify = tk.LEFT, padx = 20).place(x = 280, y = 100)
+        tk.Radiobutton(root, text = "Boolean", padx = 20, variable = self.model, value = 1).place(x = 350, y = 100)
+        tk.Radiobutton(root, text = "Vector Space", padx = 20, variable = self.model, value = 2).place(x = 480, y = 100)
 
         # Corpus radio buttons
-        self.w = tk.IntVar(value=1)
-        self.corpus = self.w
-        tk.Label(self.parent,
-                 text="Corpus:",
-                 justify=tk.LEFT,
-                 padx=20).place(x=280, y=120)
-        tk.Radiobutton(root,
-                       text="UofO catalog",
-                       padx=20,
-                       variable=self.w,
-                       value=1).place(x=350, y=120)
-        tk.Radiobutton(root,
-                       text="Reuters",
-                       padx=20,
-                       variable=self.w,
-                       value=2).place(x=480, y=120)
+        self.corpus = tk.IntVar(value=1)
+        tk.Label(self.parent, text = "Corpus:", justify = tk.LEFT, padx = 20).place(x = 280, y=120)
+        tk.Radiobutton(root, text = "UofO catalog", padx = 20, variable = self.corpus, value = 1).place(x = 350, y = 120)
+        tk.Radiobutton(root, text = "Reuters", padx = 20, variable = self.corpus, value = 2).place(x = 480, y = 120)
+
+        
+    def completion(self):
+        print(self.entry.get())
 
     def did_you_mean(self, responses):
-        x = tk.Label(self.parent,text= "Spelling mistake detected. Showing search results instead for '" + responses[1] + "'.")
-        x.place(x=280, y=60)
+        x = tk.Label(self.parent, text = "Spelling mistake detected. Showing search results instead for '" + responses[1] + "'.")
+        x.place(x = 280, y = 60)
         self.tmp_elems.append(x)
         #options spelling correction
-        y = tk.Label(self.parent,text="Did you mean:")
-        y.place(x=280, y=80)
+        y = tk.Label(self.parent, text = "Did you mean:")
+        y.place(x = 280, y = 80)
         self.tmp_elems.append(y)
         for i in range(3):
             j = 0
             if i > 0:
                 j = i + 1
-            op = tk.Label(self.parent,
-                             text=responses[j],
-                             fg="blue")
+            op = tk.Label(self.parent, text = responses[j], fg = "blue")
             op.place(x=370 + i * 100, y=80)
             op.bind("<Button-1>", lambda event, arg= j: self.handle_replacement(arg, responses[arg]))
-
+            
             self.tmp_elems.append(op)
+
 
 
     def handle_replacement(self, args, txt):
@@ -205,24 +174,20 @@ class GUI(tk.Frame):
             
             if "score" in df.columns:
                 score = row["score"]
-            x = ListItem(root,
-                 ind,
-                 row["title"],
-                 row["description"],
-                 280,
-                 150 + 80 * (ind - 1),
-                 score,
-                 query,
-                 row["index"])
+            x = ListItem(root, ind, row["title"], row["description"],
+                 280, 150 + 80 * (ind - 1),
+                 score, query, row["index"])
             ind += 1
             self.tmp_elems.append(x)
 
     def empty_result(self):
-        x = tk.Label(self.parent, text="This query did not return any results")
-        x.place(x=280, y=150)
+        x = tk.Label(self.parent, text = "This query did not return any results")
+        x.place(x = 280, y = 150)
         self.tmp_elems.append(x)
 
     def search(self, query, model, corpus, spell_correct = 1):
+        print (spell_correct)
+        print(query)
         self.query = query
 
         for elem in self.tmp_elems:
@@ -259,8 +224,10 @@ class GUI(tk.Frame):
 
 
 if __name__ == "__main__":
+    
     print("Checking if all required files are generated.")
-    preprocessing_scripts.run_preprocessing()
+    #preprocessing_scripts.run_preprocessing()
+    
     root = tk.Tk()
-    run = GUI(root)
+    GUI(root)
     root.mainloop()

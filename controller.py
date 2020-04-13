@@ -46,9 +46,14 @@ def boolean_controller(query, corpus):
     Returns a DataFrame containing the results of the BRM for the given query on the given corpus
     '''
     query = expand_query(query, "boolean")
-    title_brm = BRM("save_files/UO/title_index.obj", "save_files/UO/title_secondary_index.obj")
+    if corpus == 1:
+        path = "save_files/UO/"
+    else:
+        path = "save_files/Reuters/"
+
+    title_brm = BRM(path + "title_index.obj", path + "title_secondary_index.obj")
     title_ids = title_brm.run_model(query)
-    desc_brm = BRM("save_files/UO/descriptions_index.obj", "save_files/UO/description_secondary_index.obj")
+    desc_brm = BRM(path + "descriptions_index.obj", path + "description_secondary_index.obj")
     desc_ids = desc_brm.run_model(query)
     
     both_ids = []
@@ -66,7 +71,8 @@ def boolean_controller(query, corpus):
         ids = title_ids
     elif title_ids == []:
         ids = desc_ids
-    df = pd.read_csv("save_files/UO/corpus.csv", sep = "|")
+
+    df = pd.read_csv(path + "corpus.csv", sep = "|")
     return df.loc[ ids , ["title", "description"]]
 
 def vector_controller(query, corpus):
