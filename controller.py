@@ -22,7 +22,10 @@ def spelling_correction(query, corpus):
         if not df['word'].str.contains(query[i]).any():
             flag = True
             df['ed'] = df.apply(lambda x: weighted_edit_distance(query[i], str(x['word']).strip()), axis=1)
-            df2 = pd.read_pickle("save_files/UO/weighted_ed_df.pkl")
+            if corpus == 1:
+                df2 = pd.read_pickle("save_files/UO/weighted_ed_df.pkl")
+            else:
+                df2 = pd.read_pickle("save_files/Reuters/weighted_ed_df.pkl")
             df['in_corpus'] = df['format'].isin(df2['word'].tolist())
             df['ed'] = np.where(df['in_corpus'] == True, df['ed'] - 3, df['ed'])
             df = df.nsmallest(3, 'ed')
