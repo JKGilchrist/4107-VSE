@@ -6,6 +6,11 @@ from string_formatting import get_formatted_tokens
 import pickle
 import pandas as pd
 
+
+'''
+Was expecting the linear time Posting Merge Sort algorithms for 'AND', 'OR', and 'AND_NOT'. Specifically, marks are docked for using for ... in ... loops which are less efficient
+'''
+
 class BRM:
     '''
     The Boolean Retrieval Model, after initializing, just give run_model a query and it will compute and return a list of relevant, unique ids
@@ -51,7 +56,7 @@ class BRM:
                     terms += self.secondary_index[bigram]
                 except:
                     continue
-            terms = [t for t in terms if len(t) > 2]
+            terms = [t for t in terms if len(t) > 2] #filter
             x = pd.Series(terms).value_counts().tolist() #sorts by frequency
             y = pd.Series(terms).value_counts().index.tolist() #sorts by frequency
 
@@ -63,7 +68,7 @@ class BRM:
         #ID retrievals
         ids = []
         
-        for term in terms:
+        for term in terms: 
             try:
                 formatted = get_formatted_tokens(term)[0]
                 ids += self.primary_index[formatted]
@@ -105,27 +110,99 @@ class BRM:
                             RHS = self.loop(lst[i+2 : len(lst) - 1])
                         
                         if lst[i] == "OR":
-                            return list( set(LHS) | set(RHS) )
+                            return merger(LHS, RHS, "or" )
+                        
                         elif lst[i] == "AND":
-                            return [i for i in LHS if i in  RHS]
+                            return merger(LHS, RHS, "and" )
+
                         else: #AND_NOT
-                            return [i for i in LHS if i not in  RHS]
-                            
+                            return merger(LHS, RHS, "and_not" )
+
                 elif i == len(lst) - 1: #couldnt find middle, due to extra parentheses around entire query
                     excess_parentheses = True
 
             if excess_parentheses: #remove them, recall function
                 return self.loop(lst[1:len(lst) - 1])
 
+def merger(lst1,lst2, func):
+
+    #both lists must be first sorted
+    ###print("LHS pre-sort:", lst1)
+    lst1 = merge_sort(lst1)
+    ###print("LHS sorted:", lst1)
+    ###print("RHS pre-sort:", lst2)
+    lst2 = merge_sort(lst2)
+    ###print("RHS sorted:", lst2)
+    
+    ans = []
+
+    lst1_i = 0
+    lst2_i = 0
+    
+    while lst1_i < len(lst1) or lst2_i < len(lst2):
+        
+        #If at both ends, no loop, no work to do
+
+        if lst1_i < len(lst1) and lst2_i >= len(lst2):  #if not end(lst) and end(lst2)
+            if func in ["or", "and_not"]:
+                ans.append(lst1[lst1_i])
+            lst1_i += 1
+        
+        elif lst1_i >= len(lst1) and lst2_i < len(lst2):  #if end(lst1) and ! end(lst2)
+            if func in ["or"]:
+                ans.append(lst2[lst2_i])
+            lst2_i += 1
+
+        elif lst1[lst1_i] == lst2[lst2_i]: #if lst1_value == lst2_value
+            if func in ["or", "and"]:
+                ans.append(lst1[lst1_i])
+            lst1_i += 1
+            lst2_i += 1
+        
+        elif lst1[lst1_i] < lst2[lst2_i] : #if lst1_value < lst2_value
+            if func in ["or", "and_not"]:
+                ans.append(lst1[lst1_i])
+            lst1_i += 1
+
+        else: # if lst1_value > lst2_value
+            if func in ["or"]:
+                ans.append(lst2[lst2_i])
+            lst2_i += 1
+        
+    return ans
+
+def merge_sort(lst):
+    if len(lst) > 1:
+        LHS = merge_sort(lst[0: (len(lst) // 2)])
+        RHS = merge_sort(lst[(len(lst) // 2) :] )
+        LHS_i = 0
+        RHS_i = 0
+        ans = []
+
+        while LHS_i < len(LHS) or RHS_i < len(RHS):
+            if LHS_i < len(LHS) and RHS_i >= len(RHS) or LHS_i < len(LHS) and LHS[LHS_i] <= RHS[RHS_i]  :
+                ans.append(LHS[LHS_i])
+                LHS_i += 1
+            else:
+                ans.append(RHS[RHS_i])
+                RHS_i += 1
+        return ans
+
+    else:
+        return lst
+    
 
 def test_BRM():
     test = BRM("./save_files/UO/descriptions_index.obj", "./save_files/UO/description_secondary_index.obj")
-    print (test.run_model("competition"))
+    #print (test.run_model("competition"))
 
-    print("\n\n")
-    print (test.run_model("competition OR computer"))
-    print("\n\n")
-    print (test.run_model("operating AND (system OR platform)"))
+    #print("\n\n")
+    #print (test.run_model("competition OR computer"))
+    print (test.run_model("enhances OR digital"))
+    print (test.run_model("enhances AND digital"))
+    print (test.run_model("enhances AND_NOT digital"))
+    #print("\n\n")
+    #print (test.run_model("operating AND (system OR platform)"))
 
 if __name__ == "__main__":
     test_BRM()
