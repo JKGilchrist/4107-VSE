@@ -3,3 +3,6 @@ __pycache__
 raw_files/*
 save_files/*/*.obj
 test.py
+.idea/
+.ipynb_checkpoints/
+models/.ipynb_checkpoints/

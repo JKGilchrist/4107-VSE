@@ -169,7 +169,6 @@ class GUI(tk.Frame):
                        text="Reuters",
                        padx=20,
                        variable=self.w,
-                       state = "disabled",
                        value=2).place(x=480, y=120)
 
     def did_you_mean(self, responses):

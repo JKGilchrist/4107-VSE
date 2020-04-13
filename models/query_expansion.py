@@ -1,4 +1,3 @@
-import nltk
 from nltk.corpus import wordnet
 from string_formatting import get_formatted_tokens
 

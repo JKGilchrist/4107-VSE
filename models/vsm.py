@@ -18,7 +18,7 @@ def vsm(collection, query, title, desc, expanded_values):
     for i in range(len(query_no_duplicates)):
         values[i] = values[i] + expanded_values[query_no_duplicates[i]]
     query_df = pd.DataFrame([values], columns=query_no_duplicates)
-    print(query_df)
+
     # create title df
     index = []
     values = []
