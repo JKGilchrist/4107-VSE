@@ -1,7 +1,6 @@
 import nltk
 from nltk.corpus import wordnet
 
-
 def expand_query(query, model):
     if model == "boolean":
         if "(" in query:

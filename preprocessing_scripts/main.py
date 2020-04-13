@@ -3,7 +3,7 @@ from .dictionary_builder import main as dictionary_main
 from .index_builder import main as index_main
 from .generate_td_idf import generate_td_idf
 from .create_weighted_ed_df import create_weighted_ed_df
-
+from .bigram_language_model import main as bigram_language_model_main
 import os
 
 def main():
@@ -20,10 +20,13 @@ def main():
     if not os.path.exists("./save_files/UO/descriptions_index.obj") or not os.path.exists("./save_files/Reuters/descriptions_index.obj"): 
         print("Missing an index. Generating now.")
         index_main()
+    if not os.path.exists("./save_files/UO/blm_dic.pkl"): #or not os.path.exists("./save_files/Reuters/corpus.csv"): 
+        bigram_language_model_main()
+
     if not os.path.exists("./save_files/UO/descriptions_index_with_weight.csv"): #or not os.path.exists("./save_files/Reuters/corpus.csv"): 
         generate_td_idf()
     if not os.path.exists("./save_files/UO/weighted_ed_df.pkl"): #or not os.path.exists("./save_files/Reuters/corpus.csv"): 
         create_weighted_ed_df()
-    
+
     print("All pre-processing has been prepared.")
 

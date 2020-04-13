@@ -7,7 +7,6 @@ import preprocessing_scripts
 
 from controller import boolean_controller, vector_controller, spelling_correction
 
-
 class ListItem(tk.Frame):
 
     def __init__(self, master, id, title, description, x, y, score, query, doc_id):

@@ -82,15 +82,15 @@ def main():
     title_sec = index("save_files/UO/titles_dic.obj")
     title_sec.build_secondary_index()
     title_sec.save("UO/title_secondary_index")
-    print("\t secondary title")
+    print("\tsecondary title")
 
     desc_sec = index("save_files/UO/descriptions_dic.obj")
     desc_sec.build_secondary_index()
     desc_sec.save("UO/description_secondary_index")
-    print("\t secondary description")
+    print("\tsecondary description")
 
 
-    print("\nDoing Reuters")
+    print("\nCreating Reuters indexes")
 
     df = pd.read_csv("save_files/Reuters/corpus.csv", sep = "|")
 
@@ -105,12 +105,12 @@ def main():
     title_sec = index("save_files/Reuters/titles_dic.obj")
     title_sec.build_secondary_index()
     title_sec.save("Reuters/title_secondary_index")
-    print("\t secondary title")
+    print("\tsecondary title")
 
     desc_sec = index("save_files/Reuters/descriptions_dic.obj")
     desc_sec.build_secondary_index()
     desc_sec.save("Reuters/description_secondary_index")
-    print("\t secondary description")
+    print("\tsecondary description")
 
 
 if __name__ == "__main__":
