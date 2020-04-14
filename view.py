@@ -186,9 +186,8 @@ class GUI(tk.Frame):
         self.tmp_elems.append(x)
 
     def search(self, query, model, corpus, spell_correct = 1):
-        print (spell_correct)
-        print(query)
         self.query = query
+        self.corpus = corpus
 
         for elem in self.tmp_elems:
             elem.destroy()
@@ -212,7 +211,11 @@ class GUI(tk.Frame):
                 
             try:
                 if query != '':
-                    result = vector_controller(query, corpus)
+                    print('======================')
+                    print(query)
+                    print(corpus)
+                    print('======================')
+                    result = vector_controller(query, self.corpus)
             except:
                 print("VSM fail")
 
