@@ -3,10 +3,11 @@ import numpy as np
 from models.spelling_correction import weighted_edit_distance
 from models.BRM import BRM
 from models.vsm import vsm
-from string_formatting import get_formatted_tokens
+from string_formatting import get_formatted_tokens, get_bigram_tokens
 from models.query_expansion import expand_query
 from models.rocchio_model import rocchio
 from collections import Counter
+import pickle
 
 def spelling_correction(query, corpus):
     '''
@@ -102,6 +103,39 @@ def vector_controller(query, corpus):
     result = corp.loc[ repr[0] , ["title", "description"]]
     result['score'] = repr[1]
     return result
+
+
+
+
+def next_word(string, corpus, model):
+    
+    if corpus == 1:
+        path = "save_files/UO/"
+    else:
+        path = "save_files/Reuters/"
+
+    last_word = string.split()
+    if model == 2:
+        last_word = last_word[-1]
+    elif last_word[-1] in ["AND", "OR", "AND_NOT"]:
+        last_word = last_word[-2]
+    else:
+        return ["AND", "OR", "AND_NOT"]
+
+    try:
+        formatted = get_formatted_tokens(last_word)[0]
+    except:
+        formatted = get_bigram_tokens(last_word)[0]
+    
+    with open(path + "blm_dic.pkl", 'rb') as f:
+        dict = pickle.load(f)
+        try:
+            return dict[formatted]
+        except:
+            return []
+    
+
+
 
 if __name__ == "__main__":
     print(vector_controller('operating system', 'UOttawa'))

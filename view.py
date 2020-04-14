@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 import preprocessing_scripts
-from controller import boolean_controller, vector_controller, spelling_correction
+from controller import boolean_controller, vector_controller, spelling_correction, next_word
 
 class ListItem(tk.Frame):
 
@@ -29,18 +29,18 @@ class ListItem(tk.Frame):
 
         # Revelant radio buttons
         
-        self.model = tk.IntVar(value=0)
+        self.model2 = tk.IntVar(value=0)
         self.button1 = tk.Radiobutton(root,
                        text="Relevant",
-                       variable=self.model,
+                       variable=self.model2,
                        value=1,
-                       command=lambda: self.save_relevance(self.model.get(), doc_id, query))
+                       command=lambda: self.save_relevance(self.model2.get(), doc_id, query))
         self.button1.place(x=x+20, y=y+60)
         self.button2 = tk.Radiobutton(root,
                        text="Not relevant",
-                       variable=self.model,
+                       variable=self.model2,
                        value=2,
-                       command=lambda: self.save_relevance(self.model.get(), doc_id, query))
+                       command=lambda: self.save_relevance(self.model2.get(), doc_id, query))
         self.button2.place(x=x+100, y=y+60)
         
 
@@ -108,8 +108,13 @@ class GUI(tk.Frame):
         self.tmp_elems = []
         self.query = []
         self.txt = ""
-        self.set_up_ui()
+        self.buttons = [] #Query completion buttons
         #as well as self.model, self.corpus
+
+        
+        self.model = tk.IntVar(value = 1)
+        
+        self.set_up_ui()
 
     def set_up_ui(self):
         self.parent.geometry("1000x1000")
@@ -120,26 +125,87 @@ class GUI(tk.Frame):
         self.entry = tk.Entry(self.parent, width = 99, textvariable = tk.StringVar())
         self.entry.bind('<space>', (lambda _: self.completion()) )
         self.entry.bind('<Return>', (lambda _: self.search(self.entry.get(), self.model.get(), self.corpus.get())  ) )
-        self.entry.place(x = 300, y = 43)
+        self.entry.place(x = 283, y = 43)
 
         # search button
         tk.Button(self.parent, text="Search", padx = 20, command = lambda: self.search(self.entry.get(), self.model.get(), self.corpus.get())).place(x=900, y=40)
 
         # Model radio buttons
-        self.model = tk.IntVar(value = 1)
-        tk.Label(self.parent, text = "Model: ", justify = tk.LEFT, padx = 20).place(x = 280, y = 100)
-        tk.Radiobutton(root, text = "Boolean", padx = 20, variable = self.model, value = 1).place(x = 350, y = 100)
-        tk.Radiobutton(root, text = "Vector Space", padx = 20, variable = self.model, value = 2).place(x = 480, y = 100)
+        tk.Label(self.parent, text = "Model: ", justify = tk.RIGHT, padx = 20).place(x = 13, y =  80)
+        tk.Radiobutton(root, text = "Boolean", padx = 0, variable = self.model, value = 1).place(x = 90, y = 80)
+        tk.Radiobutton(root, text = "Vector Space", padx = 0, variable = self.model, value = 2).place(x = 160, y = 80)
 
         # Corpus radio buttons
         self.corpus = tk.IntVar(value=1)
-        tk.Label(self.parent, text = "Corpus:", justify = tk.LEFT, padx = 20).place(x = 280, y=120)
-        tk.Radiobutton(root, text = "UofO catalog", padx = 20, variable = self.corpus, value = 1).place(x = 350, y = 120)
-        tk.Radiobutton(root, text = "Reuters", padx = 20, variable = self.corpus, value = 2).place(x = 480, y = 120)
+        tk.Label(self.parent, text = "Corpus:", justify = tk.RIGHT, padx = 20).place(x = 9, y=100 )
+        tk.Radiobutton(root, text = "UofO", padx = 0, variable = self.corpus, value = 1).place(x = 90, y = 100 )
+        tk.Radiobutton(root, text = "Reuters", padx = 0, variable = self.corpus, value = 2).place(x = 160, y = 100 )
 
-        
+
     def completion(self):
-        print(self.entry.get())
+
+        ans = next_word(self.entry.get(), self.corpus.get(), self.model.get())
+        print(ans)
+
+        #f tkinter
+        try: 
+            i = 0
+            x = tk.Button(self.parent, 
+                    text= ans[0],
+                    justify = tk.LEFT, padx = 20, width = 10, height = 1,
+                    command = lambda: self.completion_button_event(ans[0])
+                    )
+            x.place(x = 283, y = 63 + 26 * i)
+            self.buttons.append(x)
+            i += 1
+            
+            x = tk.Button(self.parent, 
+                    text= ans[1],
+                    justify = tk.LEFT, padx = 20, width = 10, height = 1,
+                    command = lambda: self.completion_button_event(ans[1])
+                    )
+            x.place(x = 283, y = 63 + 26 * i)
+            self.buttons.append(x)
+            i += 1
+            
+            x = tk.Button(self.parent, 
+                    text= ans[2],
+                    justify = tk.LEFT, padx = 20, width = 10, height = 1,
+                    command = lambda: self.completion_button_event(ans[2])
+                    )
+            x.place(x = 283, y = 63 + 26 * i)
+            self.buttons.append(x)
+            i += 1
+            
+            x = tk.Button(self.parent, 
+                    text= ans[3],
+                    justify = tk.LEFT, padx = 20, width = 10, height = 1,
+                    command = lambda: self.completion_button_event(ans[3])
+                    )
+            x.place(x = 283, y = 63 + 26 * i)
+            self.buttons.append(x)
+            i += 1
+            
+            x = tk.Button(self.parent, 
+                    text= ans[4],
+                    justify = tk.LEFT, padx = 20, width = 10, height = 1,
+                    command = lambda: self.completion_button_event(ans[4])
+                    )
+            x.place(x = 283, y = 63 + 26 * i)
+            self.buttons.append(x)
+
+        except:
+            pass
+        print("T")
+
+    def completion_button_event(self, txt):
+        print("G")
+        self.entry.insert(tk.END, txt + " ")
+        
+        for x in self.buttons:
+            x.destroy()
+        self.completion()
+
 
     def did_you_mean(self, responses):
         x = tk.Label(self.parent, text = "Spelling mistake detected. Showing search results instead for '" + responses[1] + "'.")
@@ -153,7 +219,7 @@ class GUI(tk.Frame):
             j = 0
             if i > 0:
                 j = i + 1
-            op = tk.Label(self.parent, text = responses[j], fg = "blue")
+            op = tk.Button(self.parent, text = responses[j], fg = "blue")
             op.place(x=370 + i * 100, y=80)
             op.bind("<Button-1>", lambda event, arg= j: self.handle_replacement(arg, responses[arg]))
             
@@ -187,9 +253,11 @@ class GUI(tk.Frame):
 
     def search(self, query, model, corpus, spell_correct = 1):
         self.query = query
-        self.corpus = corpus
-
+        corpus2 = corpus
+        
         for elem in self.tmp_elems:
+            elem.destroy()
+        for elem in self.buttons:
             elem.destroy()
         
         result = pd.DataFrame()
@@ -203,7 +271,7 @@ class GUI(tk.Frame):
 
         else: # model == 2:
             if spell_correct:
-                response = spelling_correction(query.split(" "), corpus)
+                response = spelling_correction(query.strip().split(" "), corpus)
                 self.query = response
                 if len(response) > 0:
                     self.did_you_mean(response)
@@ -215,7 +283,7 @@ class GUI(tk.Frame):
                     print(query)
                     print(corpus)
                     print('======================')
-                    result = vector_controller(query, self.corpus)
+                    result = vector_controller(query, corpus2)
             except:
                 print("VSM fail")
 
