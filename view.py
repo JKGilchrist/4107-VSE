@@ -143,6 +143,9 @@ class GUI(tk.Frame):
 
 
     def completion(self):
+        
+        for x in self.buttons:
+            x.destroy()
 
         ans = next_word(self.entry.get(), self.corpus.get(), self.model.get())
         print(ans)
@@ -196,16 +199,14 @@ class GUI(tk.Frame):
 
         except:
             pass
-        print("T")
 
     def completion_button_event(self, txt):
-        print("G")
         self.entry.insert(tk.END, txt + " ")
         
         for x in self.buttons:
             x.destroy()
         self.completion()
-
+        
 
     def did_you_mean(self, responses):
         x = tk.Label(self.parent, text = "Spelling mistake detected. Showing search results instead for '" + responses[1] + "'.")
@@ -254,7 +255,7 @@ class GUI(tk.Frame):
     def search(self, query, model, corpus, spell_correct = 1):
         self.query = query
         corpus2 = corpus
-        
+
         for elem in self.tmp_elems:
             elem.destroy()
         for elem in self.buttons:
@@ -273,6 +274,7 @@ class GUI(tk.Frame):
             if spell_correct:
                 response = spelling_correction(query.strip().split(" "), corpus)
                 self.query = response
+                print(response)
                 if len(response) > 0:
                     self.did_you_mean(response)
                     query = response[1]

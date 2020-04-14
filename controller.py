@@ -46,7 +46,12 @@ def boolean_controller(query, corpus):
     '''
     Returns a DataFrame containing the results of the BRM for the given query on the given corpus
     '''
-    query = expand_query(query, "boolean")
+    
+    try:
+        query = expand_query(query, "boolean")
+    except:
+        pass
+    
     if corpus == 1:
         path = "save_files/UO/"
     else:
