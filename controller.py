@@ -90,7 +90,7 @@ def vector_controller(query, corpus):
         newdict = np.load('models/complete_dict_reuters.npy', allow_pickle='TRUE').item()
         desc = pd.read_pickle("save_files/Reuters/descriptions_index_with_weight.obj")
         title = pd.read_pickle("save_files/Reuters/title_index_with_weight.obj")
-    r_query = rocchio(['oper', 'system'], ['operating', 'system'], rel_dict, newdict)
+    r_query = rocchio(get_formatted_tokens(query), query.split(), rel_dict, newdict)
     query, expanded_values = expand_query(query, 'vsm')
     r_query = Counter(r_query)
     expanded_values = Counter(expanded_values)
